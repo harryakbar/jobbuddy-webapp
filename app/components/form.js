@@ -113,11 +113,12 @@ const FormConfig = {
   },
 };
 
-export default () => {
+const Form = () => {
   const [response, setResponse] = useState(null);
   const [description, setDescription] = useState("");
 
   const handleClick = async () => {
+    console.log(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
     const configuration = new Configuration({
       apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
     });
@@ -291,3 +292,5 @@ export default () => {
     </form>
   );
 };
+
+export default Form;
