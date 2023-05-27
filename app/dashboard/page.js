@@ -20,7 +20,7 @@ const Container = (props) => {
 };
 
 const Input = (props) => {
-  const { label, type, onChange } = props;
+  const { label, type, onChange, value } = props;
   const isTextArea = type === "textarea";
 
   if (isTextArea) {
@@ -30,6 +30,7 @@ const Input = (props) => {
         <textarea
           onChange={onChange}
           type={type}
+          value={JSON.stringify(value)}
           className="border border-slate-300 rounded-md"
         />
       </div>
@@ -61,6 +62,10 @@ const FormConfig = {
   job_description: {
     label: "Description",
     type: "textarea",
+  },
+  cover_letter_result: {
+    label: "Your Cover Letter",
+    type: "textarea",
   }
 };
 
@@ -70,7 +75,7 @@ export default function Dashboard() {
 
   const handleClick = async () => {
     const configuration = new Configuration({
-      apiKey: "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",
+      apiKey: "null",
     });
     const openai = new OpenAIApi(configuration);
 
@@ -152,10 +157,16 @@ export default function Dashboard() {
             </div>
 
             <div className="border mt-4" />
-            
-            <div className="flex row items-center">
-              <span>Your Cover Letter</span>
-            </div>
+
+            <Input
+                label={FormConfig.cover_letter_result.label}
+                type={FormConfig.cover_letter_result.type}
+                value={JSON.stringify(response)}
+                onChange={(event) => {
+                  event.preventDefault();
+                  setDescription(event.target.value);
+                }}
+              />
             <input
               type="submit"
               className="mt-4 rounded-md text-white px-4 sm:px-8 py-2 sm:py-3 bg-[#8EB8E2] cursor-pointer"
