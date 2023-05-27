@@ -1,7 +1,10 @@
+"use client";
 import Image from "next/image";
 import styles from "./page.module.css";
 import "./global.css";
 import EventHandler from "./components/EventHandler";
+import { useState } from "react";
+import { Configuration, OpenAIApi } from "openai";
 
 const Container = (props) => {
   return (
@@ -17,14 +20,18 @@ const Container = (props) => {
 };
 
 const Input = (props) => {
-  const { label, type } = props;
+  const { label, type, onChange } = props;
   const isTextArea = type === "textarea";
 
   if (isTextArea) {
     return (
       <div className="flex flex-col w-full">
         <span>{label}</span>
-        <textarea type={type} className="border border-slate-300 rounded-md" />
+        <textarea
+          onChange={onChange}
+          type={type}
+          className="border border-slate-300 rounded-md"
+        />
       </div>
     );
   }
@@ -32,7 +39,11 @@ const Input = (props) => {
   return (
     <div className="flex flex-col w-full">
       <span>{label}</span>
-      <input type={type} className="border border-slate-300 rounded-md" />
+      <input
+        onChange={onChange}
+        type={type}
+        className="border border-slate-300 rounded-md"
+      />
     </div>
   );
 };
@@ -119,6 +130,39 @@ const FormConfig = {
 };
 
 export default function Home() {
+  const [response, setResponse] = useState(null);
+  const [description, setDescription] = useState("");
+
+  const handleClick = async () => {
+    const configuration = new Configuration({
+      apiKey: "null",
+    });
+    const openai = new OpenAIApi(configuration);
+
+    console.log(description);
+    try {
+      const response = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: `
+        You are a resume maker, please improve the following experience description to make it more sophisticated
+        ${description}
+        `,
+        temperature: 0.5,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+      });
+
+      // Handle the API response
+      console.log(response);
+      setResponse(response.data.choices[0].text); // Store the response in state or perform any other action
+    } catch (error) {
+      console.error("Error:", error);
+      // Handle the error
+    }
+  };
+
   return (
     <main className={styles.main}>
       <Container>
@@ -194,9 +238,17 @@ export default function Home() {
               <Input
                 label={FormConfig.experience_description.label}
                 type={FormConfig.experience_description.type}
+                onChange={(event) => {
+                  event.preventDefault();
+                  setDescription(event.target.value);
+                }}
               />
+              <div>{JSON.stringify(response)}</div>
               <div>
-                <button className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer">
+                <button
+                  onClick={handleClick}
+                  className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+                >
                   Improve with Magic ✨
                 </button>
               </div>
