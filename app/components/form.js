@@ -4,29 +4,33 @@ import EventHandler from "./EventHandler";
 import { Configuration, OpenAIApi } from "openai";
 
 const Input = (props) => {
-  const { label, type, onChange } = props;
+  const { label, type, onChange, value, disabled, isMagic } = props;
   const isTextArea = type === "textarea";
 
   if (isTextArea) {
     return (
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col w-full md:w-1/2">
         <span>{label}</span>
         <textarea
           onChange={onChange}
           type={type}
-          className="border border-slate-300 rounded-md"
+          className="border border-slate-300 rounded-md p-2"
+          value={value}
+          disabled={disabled}
         />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full md:w-1/2">
       <span>{label}</span>
       <input
         onChange={onChange}
         type={type}
-        className="border border-slate-300 rounded-md"
+        className="border border-slate-300 rounded-md p-2"
+        value={value}
+        disabled={disabled}
       />
     </div>
   );
@@ -113,9 +117,15 @@ const FormConfig = {
   },
 };
 
-export default () => {
+const Form = () => {
   const [response, setResponse] = useState(null);
+  const [achievementResponse, setAchievementResponse] = useState("");
+  const [educationResponse, setEducationResponse] = useState("");
+  const [loading, setLoading] = useState(null);
+
   const [description, setDescription] = useState("");
+  const [achievementDesc, setAchievementDesc] = useState("");
+  const [educationDesc, setEducationDesc] = useState("");
 
   const handleClick = async () => {
     const configuration = new Configuration({
@@ -124,6 +134,8 @@ export default () => {
     const openai = new OpenAIApi(configuration);
 
     try {
+      setResponse("");
+      setLoading("experience");
       const response = await openai.createCompletion({
         model: "text-davinci-003",
         prompt: `
@@ -137,22 +149,78 @@ export default () => {
         presence_penalty: 0,
       });
 
-      // Handle the API response
-      console.log(response);
       setResponse(response.data.choices[0].text); // Store the response in state or perform any other action
     } catch (error) {
       console.error("Error:", error);
-      // Handle the error
     }
+    setLoading(null);
+  };
+
+  const handleEducationDescriptionClick = async () => {
+    const configuration = new Configuration({
+      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+    });
+    const openai = new OpenAIApi(configuration);
+
+    try {
+      setEducationResponse("");
+      setLoading("education");
+      const response = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: `
+        You are a resume maker, please improve the following education description to make it more sophisticated
+        ${educationDesc}
+        `,
+        temperature: 0.5,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+      });
+
+      setEducationResponse(response.data.choices[0].text); // Store the response in state or perform any other action
+    } catch (error) {
+      console.error("Error:", error);
+    }
+    setLoading(null);
+  };
+
+  const handleAchievementDescriptionClick = async () => {
+    const configuration = new Configuration({
+      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+    });
+    const openai = new OpenAIApi(configuration);
+
+    try {
+      setAchievementResponse("");
+      setLoading("achievement");
+      const response = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: `
+        You are a resume maker, please improve the following achievement description to make it more sophisticated
+        ${achievementDesc}
+        `,
+        temperature: 0.5,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+      });
+
+      setAchievementResponse(response.data.choices[0].text); // Store the response in state or perform any other action
+    } catch (error) {
+      console.error("Error:", error);
+    }
+    setLoading(null);
   };
 
   return (
-    <form onSubmit={EventHandler} className="w-full p-12">
+    <form onSubmit={EventHandler} className="w-full md:p-12">
       <div className="bg-white drop-shadow-md rounded-md p-4 w-full">
         <h3 className="font-bold">Create Your Job Profile</h3>
-        <div className="flex row items-center">
+        <div className="flex row items-center my-4">
           <span>LinkedIn Profile</span>
-          <button className="ml-2 text-white px-4 sm:px-8 py-2 sm:py-3 bg-sky-700 hover:bg-sky-800">
+          <button className="ml-2 rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer hover:bg-sky-900 hover:scale-105 transition ease-in-out delay-150">
             Fill Profile with LinkedIn
           </button>
         </div>
@@ -163,7 +231,7 @@ export default () => {
           {/* Experience */}
           <div className="border" />
           <span>Experience</span>
-          <div className="flex row space-x-2">
+          <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
             <Input
               label={FormConfig.company.label}
               type={FormConfig.company.type}
@@ -172,11 +240,11 @@ export default () => {
           </div>
 
           <label>
-            <input type="checkbox" />
+            <input type="checkbox" on />
             <span className="ml-2">I am currently working in this role</span>
           </label>
 
-          <div className="flex row space-x-2">
+          <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
             <Input
               label={FormConfig.start_date.label}
               type={FormConfig.start_date.type}
@@ -186,15 +254,50 @@ export default () => {
               type={FormConfig.end_date.type}
             />
           </div>
-          <Input
-            label={FormConfig.experience_description.label}
-            type={FormConfig.experience_description.type}
-            onChange={(event) => {
-              event.preventDefault();
-              setDescription(event.target.value);
-            }}
-          />
-          <div>{JSON.stringify(response)}</div>
+          <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
+            <Input
+              label={FormConfig.experience_description.label}
+              type={FormConfig.experience_description.type}
+              onChange={(event) => {
+                event.preventDefault();
+                setDescription(event.target.value);
+              }}
+            />
+            {loading === "experience" ? (
+              <div className="flex flex-col w-1/2">
+                <span className="relative flex">
+                  <span
+                    className="animate-spin ease-in-out h-5 w-5 mr-3"
+                    viewBox="0 0 24 24"
+                  >
+                    🪄
+                  </span>
+                  Doing magic...
+                </span>
+                <div className="border border-blue-300 shadow rounded-md w-full h-full">
+                  <div className="animate-pulse p-2">
+                    <div className="flex-1 space-y-2">
+                      <div className="h-2 bg-slate-200 rounded"></div>
+                      <div className="h-2 bg-slate-200 rounded"></div>
+                      <div className="h-2 bg-slate-200 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+            {response ? (
+              <Input
+                isMagic
+                label="Here's our suggestion:"
+                type={FormConfig.experience_description.type}
+                value={response}
+                onChange={(event) => {
+                  event.preventDefault();
+                  setDescription(event.target.value);
+                }}
+              />
+            ) : null}
+          </div>
           <div>
             <button
               onClick={handleClick}
@@ -217,7 +320,7 @@ export default () => {
             label={FormConfig.education.title.label}
             type={FormConfig.education.title.type}
           />
-          <div className="flex row space-x-2">
+          <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
             <Input
               label={FormConfig.education.degree.label}
               type={FormConfig.education.degree.type}
@@ -227,7 +330,7 @@ export default () => {
               type={FormConfig.education.field_of_study.type}
             />
           </div>
-          <div className="flex row space-x-2">
+          <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
             <Input
               label={FormConfig.start_date.label}
               type={FormConfig.start_date.type}
@@ -241,12 +344,55 @@ export default () => {
             label={FormConfig.education.grade.label}
             type={FormConfig.education.grade.type}
           />
-          <Input
-            label={FormConfig.experience_description.label}
-            type={FormConfig.experience_description.type}
-          />
+          <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
+            <Input
+              label={FormConfig.education.education_desc.label}
+              type={FormConfig.education.education_desc.type}
+              onChange={(event) => {
+                event.preventDefault();
+                setEducationDesc(event.target.value);
+              }}
+            />
+            {loading === "education" ? (
+              <div className="flex flex-col w-1/2">
+                <span className="relative flex">
+                  <span
+                    className="animate-spin ease-in-out h-5 w-5 mr-3"
+                    viewBox="0 0 24 24"
+                  >
+                    🪄
+                  </span>
+                  Doing magic...
+                </span>
+                <div className="border border-blue-300 shadow rounded-md w-full h-full">
+                  <div className="animate-pulse p-2">
+                    <div className="flex-1 space-y-2">
+                      <div className="h-2 bg-slate-200 rounded"></div>
+                      <div className="h-2 bg-slate-200 rounded"></div>
+                      <div className="h-2 bg-slate-200 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+            {educationResponse ? (
+              <Input
+                isMagic
+                label="Here's our suggestion:"
+                type={FormConfig.experience_description.type}
+                value={educationResponse}
+                onChange={(event) => {
+                  event.preventDefault();
+                  setDescription(event.target.value);
+                }}
+              />
+            ) : null}
+          </div>
           <div>
-            <button className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer">
+            <button
+              onClick={handleEducationDescriptionClick}
+              className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+            >
               Improve with Magic ✨
             </button>
           </div>
@@ -264,12 +410,54 @@ export default () => {
             label={FormConfig.achievement.title.label}
             type={FormConfig.achievement.title.type}
           />
-          <Input
-            label={FormConfig.achievement.description.label}
-            type={FormConfig.achievement.description.type}
-          />
+          <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
+            <Input
+              label={FormConfig.achievement.description.label}
+              type={FormConfig.achievement.description.type}
+              onChange={(event) => {
+                event.preventDefault();
+                setAchievementDesc(event.target.value);
+              }}
+            />
+            {loading === "achievement" ? (
+              <div className="flex flex-col w-1/2">
+                <span className="relative flex">
+                  <span
+                    className="animate-spin ease-in-out h-5 w-5 mr-3"
+                    viewBox="0 0 24 24"
+                  >
+                    🪄
+                  </span>
+                  Doing magic...
+                </span>
+                <div className="border border-blue-300 shadow rounded-md w-full h-full">
+                  <div className="animate-pulse p-2">
+                    <div className="flex-1 space-y-2">
+                      <div className="h-2 bg-slate-200 rounded"></div>
+                      <div className="h-2 bg-slate-200 rounded"></div>
+                      <div className="h-2 bg-slate-200 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+            {achievementResponse ? (
+              <Input
+                label={FormConfig.achievement.description.label}
+                type={FormConfig.achievement.description.type}
+                value={achievementResponse}
+                onChange={(event) => {
+                  event.preventDefault();
+                  setAchievementDesc(event.target.value);
+                }}
+              />
+            ) : null}
+          </div>
           <div>
-            <button className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer">
+            <button
+              onClick={handleAchievementDescriptionClick}
+              className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+            >
               Improve with Magic ✨
             </button>
           </div>
@@ -291,3 +479,5 @@ export default () => {
     </form>
   );
 };
+
+export default Form;
