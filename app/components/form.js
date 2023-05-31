@@ -2,6 +2,8 @@
 import { useState } from "react";
 import EventHandler from "./EventHandler";
 import { Configuration, OpenAIApi } from "openai";
+import { createClient } from "@supabase/supabase-js";
+import { useEffect } from "react";
 
 const Input = (props) => {
   const { label, type, onChange, value, disabled, isMagic } = props;
@@ -117,6 +119,11 @@ const FormConfig = {
   },
 };
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+const supabase = createClient(supabaseUrl, supabasePublicKey);
+
 const Form = () => {
   const [response, setResponse] = useState(null);
   const [achievementResponse, setAchievementResponse] = useState("");
@@ -126,6 +133,17 @@ const Form = () => {
   const [description, setDescription] = useState("");
   const [achievementDesc, setAchievementDesc] = useState("");
   const [educationDesc, setEducationDesc] = useState("");
+
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        // Handle authentication state changes here, if needed
+      }
+    );
+    return () => {
+      authListener?.unsubscribe();
+    };
+  }, []);
 
   const handleClick = async () => {
     const configuration = new Configuration({
@@ -214,9 +232,25 @@ const Form = () => {
     setLoading(null);
   };
 
+  const signInWithGoogle = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+    });
+
+    console.log(data);
+
+    if (error) {
+      console.error("Error signing in with Google:", error);
+    } else {
+      console.log("User signed in with Google:", user);
+      console.log("Session:", session);
+    }
+  };
+
   return (
     <form onSubmit={EventHandler} className="w-full md:p-12">
       <div className="bg-white drop-shadow-md rounded-md p-4 w-full">
+        <button onClick={signInWithGoogle}>Sign in with Google</button>
         <h3 className="font-bold">Create Your Job Profile</h3>
         <div className="flex row items-center my-4">
           <span>LinkedIn Profile</span>
