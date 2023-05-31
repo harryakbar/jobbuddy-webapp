@@ -22,56 +22,6 @@ const Container = (props) => {
   );
 };
 
-// const Input = (props) => {
-//   const { label, type, onChange, value } = props;
-//   const isTextArea = type === "textarea";
-
-//   if (isTextArea) {
-//     return (
-//       <div className="flex flex-col w-full">
-//         <span>{label}</span>
-//         <textarea
-//           onChange={onChange}
-//           type={type}
-//           value={JSON.stringify(value)}
-//           className="border border-slate-300 rounded-md"
-//         />
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="flex flex-col w-full">
-//       <span>{label}</span>
-//       <input
-//         onChange={onChange}
-//         type={type}
-//         className="border border-slate-300 rounded-md"
-//       />
-//     </div>
-//   );
-// };
-
-// const FormConfig = {
-//   // Job
-//   company: {
-//     label: "Company Name",
-//     type: "text",
-//   },
-//   role: {
-//     label: "Role",
-//     type: "text",
-//   },
-//   job_description: {
-//     label: "Description",
-//     type: "textarea",
-//   },
-//   cover_letter_result: {
-//     label: "Your Cover Letter",
-//     type: "textarea",
-//   }
-// };
-
 export default function Dashboard() {
   return (
     <main className={classNames(styles.main, "p-4 sm:p-8")}>
