@@ -166,11 +166,9 @@ const DashboardForm = () => {
                   setDescription(event.target.value);
                 }}
               />
-              <div>
-                <button className="rounded-md text-white px-4 py-2 bg-[#8EB8E2] cursor-pointer">
-                  Copy to Clipboard
-                </button>
-              </div>
+              <button className="rounded-md text-white px-4 py-2 bg-[#8EB8E2] mt-4 cursor-pointer">
+                Copy to Clipboard
+              </button>
             </div>
           )}
         </div>
