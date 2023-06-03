@@ -134,10 +134,16 @@ const Form = () => {
   const [achievementDesc, setAchievementDesc] = useState("");
   const [educationDesc, setEducationDesc] = useState("");
 
+  const [user, setUser] = useState(null);
+
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        // Handle authentication state changes here, if needed
+        console.log("Authentication event:", event);
+        console.log("Session:", session);
+
+        console.log({ session });
+        setUser(session.user);
       }
     );
     return () => {
@@ -237,8 +243,6 @@ const Form = () => {
       provider: "google",
     });
 
-    console.log(data);
-
     if (error) {
       console.error("Error signing in with Google:", error);
     } else {
@@ -247,11 +251,38 @@ const Form = () => {
     }
   };
 
+  const handleSubmit = async () => {
+    // Save the experience data to Supabase
+    const { data, error } = await supabase.from("experiences").insert([
+      {
+        position: "Software Engineer",
+        company_name: "Google",
+        start_date: "2023-04-17",
+        end_date: null,
+        is_current: true,
+        user_id: user.id,
+        description,
+      },
+    ]);
+
+    if (error) {
+      console.error("Error saving experience:", error);
+    } else {
+      console.log("Experience saved successfully:", data);
+      // Perform any necessary actions after saving the experience
+    }
+  };
+
   return (
     <form onSubmit={EventHandler} className="w-full md:p-12">
       <div className="bg-white drop-shadow-md rounded-md p-4 w-full">
-        <button onClick={signInWithGoogle}>Sign in with Google</button>
+        {user ? (
+          user.user_metadata.full_name
+        ) : (
+          <button onClick={signInWithGoogle}>Sign in with Google</button>
+        )}
         <h3 className="font-bold">Create Your Job Profile</h3>
+
         <div className="flex row items-center my-4">
           <span>LinkedIn Profile</span>
           <button className="ml-2 rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer hover:bg-sky-900 hover:scale-105 transition ease-in-out delay-150">
@@ -342,7 +373,10 @@ const Form = () => {
           </div>
 
           <div>
-            <button className="rounded-md text-white px-4 py-2 bg-[#8EB8E2] cursor-pointer">
+            <button
+              onClick={handleSubmit}
+              className="rounded-md text-white px-4 py-2 bg-[#8EB8E2] cursor-pointer"
+            >
               Add Experience
             </button>
           </div>
