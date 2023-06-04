@@ -16,8 +16,6 @@ function Education(props) {
   const [educations, setEducations] = useState(null);
   const [response, setResponse] = useState(null);
 
-  const [description, setDescription] = useState("");
-
   useEffect(() => {
     // Fetch data from a table
     async function fetchData() {
@@ -47,6 +45,7 @@ function Education(props) {
       apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
     });
     const openai = new OpenAIApi(configuration);
+    const description = educations.find((item) => item.id === id).description;
 
     try {
       setResponse("");
@@ -109,6 +108,18 @@ function Education(props) {
     }
   };
 
+  const handleChange = (fieldName, id, newValue) => {
+    const index = educations.findIndex((item) => item.id === id);
+    if (index !== -1) {
+      const updatedEducations = [...educations];
+      updatedEducations[index] = {
+        ...updatedEducations[index],
+        [fieldName]: newValue,
+      };
+      setEducations(updatedEducations);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-row items-center w-[100%] place-content-between">
@@ -128,17 +139,30 @@ function Education(props) {
               label={FormConfig.education.title.label}
               type={FormConfig.education.title.type}
               value={education.institution}
+              onChange={(event) =>
+                handleChange("institution", education.id, event.target.value)
+              }
             />
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
               <Input
                 label={FormConfig.education.degree.label}
                 type={FormConfig.education.degree.type}
                 value={education.degree}
+                onChange={(event) =>
+                  handleChange("degree", education.id, event.target.value)
+                }
               />
               <Input
                 label={FormConfig.education.field_of_study.label}
                 type={FormConfig.education.field_of_study.type}
                 value={education.field_of_study}
+                onChange={(event) =>
+                  handleChange(
+                    "field_of_study",
+                    education.id,
+                    event.target.value
+                  )
+                }
               />
             </div>
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
@@ -146,27 +170,35 @@ function Education(props) {
                 label={FormConfig.start_date.label}
                 type={FormConfig.start_date.type}
                 value={education.start_date}
+                onChange={(event) =>
+                  handleChange("start_date", education.id, event.target.value)
+                }
               />
               <Input
                 label={FormConfig.end_date.label}
                 type={FormConfig.end_date.type}
                 value={education.end_date}
+                onChange={(event) =>
+                  handleChange("end_date", education.id, event.target.value)
+                }
               />
             </div>
             <Input
               label={FormConfig.education.grade.label}
               type={FormConfig.education.grade.type}
               value={education.grade}
+              onChange={(event) =>
+                handleChange("grade", education.id, event.target.value)
+              }
             />
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
               <Input
                 label={FormConfig.education.education_desc.label}
                 type={FormConfig.education.education_desc.type}
-                value={description}
-                onChange={(event) => {
-                  event.preventDefault();
-                  setDescription(event.target.value);
-                }}
+                value={education.description}
+                onChange={(event) =>
+                  handleChange("description", education.id, event.target.value)
+                }
               />
               {loading === "education" ? (
                 <div className="flex flex-col w-1/2">
@@ -196,10 +228,7 @@ function Education(props) {
                   label="Here's our suggestion:"
                   type={FormConfig.experience_description.type}
                   value={response}
-                  onChange={(event) => {
-                    event.preventDefault();
-                    setDescription(event.target.value);
-                  }}
+                  disabled
                 />
               ) : null}
             </div>

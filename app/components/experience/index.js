@@ -15,8 +15,6 @@ function Experience(props) {
   const [experiences, setExperiences] = useState(null);
   const [response, setResponse] = useState(null);
 
-  const [description, setDescription] = useState("");
-
   useEffect(() => {
     async function fetchData() {
       try {
@@ -45,6 +43,7 @@ function Experience(props) {
       apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
     });
     const openai = new OpenAIApi(configuration);
+    const description = experiences.find((item) => item.id === id).description;
 
     try {
       setResponse("");
@@ -82,6 +81,18 @@ function Experience(props) {
         },
       ];
     });
+  };
+
+  const handleChange = (fieldName, id, newValue) => {
+    const index = experiences.findIndex((item) => item.id === id);
+    if (index !== -1) {
+      const updatedExperiences = [...experiences];
+      updatedExperiences[index] = {
+        ...updatedExperiences[index],
+        [fieldName]: newValue,
+      };
+      setExperiences(updatedExperiences);
+    }
   };
 
   const handleSaveData = async () => {
@@ -124,16 +135,36 @@ function Experience(props) {
                 label={FormConfig.company.label}
                 type={FormConfig.company.type}
                 value={experience.company_name}
+                onChange={(event) => {
+                  handleChange(
+                    "company_name",
+                    experience.id,
+                    event.target.value
+                  );
+                }}
               />
               <Input
                 label={FormConfig.role.label}
                 type={FormConfig.role.type}
                 value={experience.position}
+                onChange={(event) => {
+                  handleChange("position", experience.id, event.target.value);
+                }}
               />
             </div>
 
             <label>
-              <input type="checkbox" checked={experience.is_current} />
+              <input
+                type="checkbox"
+                checked={experience.is_current}
+                onChange={() => {
+                  handleChange(
+                    "is_current",
+                    experience.id,
+                    !experience.is_current
+                  );
+                }}
+              />
               <span className="ml-2">I am currently working in this role</span>
             </label>
 
@@ -142,22 +173,31 @@ function Experience(props) {
                 label={FormConfig.start_date.label}
                 type={FormConfig.start_date.type}
                 value={experience.start_date}
+                onChange={(event) => {
+                  handleChange("start_date", experience.id, event.target.value);
+                }}
               />
               <Input
                 label={FormConfig.end_date.label}
                 type={FormConfig.end_date.type}
                 value={experience.end_date}
                 disabled={experience.is_current}
+                onChange={(event) => {
+                  handleChange("end_date", experience.id, event.target.value);
+                }}
               />
             </div>
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
               <Input
                 label={FormConfig.experience_description.label}
                 type={FormConfig.experience_description.type}
-                value={description}
+                value={experience.description}
                 onChange={(event) => {
-                  event.preventDefault();
-                  setDescription(event.target.value);
+                  handleChange(
+                    "description",
+                    experience.id,
+                    event.target.value
+                  );
                 }}
               />
               {loading === "experience" ? (
@@ -184,14 +224,10 @@ function Experience(props) {
               ) : null}
               {response ? (
                 <Input
-                  isMagic
                   label="Here's our suggestion:"
                   type={FormConfig.experience_description.type}
                   value={response}
-                  onChange={(event) => {
-                    event.preventDefault();
-                    setDescription(event.target.value);
-                  }}
+                  disabled
                 />
               ) : null}
             </div>

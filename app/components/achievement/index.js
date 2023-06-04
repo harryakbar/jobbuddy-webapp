@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Input from "../Input";
 import FormConfig from "../formConfig";
 import { createClient } from "@supabase/supabase-js";
@@ -16,10 +16,7 @@ function Achievement(props) {
   const [achievements, setAchievements] = useState(null);
   const [response, setResponse] = useState(null);
 
-  const [description, setDescription] = useState("");
-
   useEffect(() => {
-    // Fetch data from a table
     async function fetchData() {
       try {
         const { data, error } = await supabase
@@ -42,11 +39,13 @@ function Achievement(props) {
     }
   }, [user]);
 
-  const handleClick = async () => {
+  const handleClick = async (id) => {
     const configuration = new Configuration({
       apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
     });
     const openai = new OpenAIApi(configuration);
+
+    const description = achievements.find((item) => item.id === id).description;
 
     try {
       setResponse("");
@@ -84,6 +83,18 @@ function Achievement(props) {
     });
   };
 
+  const handleChange = (fieldName, id, newValue) => {
+    const index = achievements.findIndex((item) => item.id === id);
+    if (index !== -1) {
+      const updatedAchievements = [...achievements];
+      updatedAchievements[index] = {
+        ...updatedAchievements[index],
+        [fieldName]: newValue,
+      };
+      setAchievements(updatedAchievements);
+    }
+  };
+
   const handleSaveData = async () => {
     const { data, error } = await supabase.from("achievements").insert([
       {
@@ -114,19 +125,27 @@ function Achievement(props) {
       {achievements &&
         Array.isArray(achievements) &&
         achievements.map((achievement) => (
-          <>
+          <Fragment key={achievement.id}>
             <Input
               label={FormConfig.achievement.title.label}
               type={FormConfig.achievement.title.type}
               value={achievement.title}
+              onChange={(event) => {
+                handleChange("title", achievement.id, event.target.value);
+              }}
             />
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
               <Input
                 label={FormConfig.achievement.description.label}
                 type={FormConfig.achievement.description.type}
+                value={achievement.description}
                 onChange={(event) => {
                   event.preventDefault();
-                  setDescription(event.target.value);
+                  handleChange(
+                    "description",
+                    achievement.id,
+                    event.target.value
+                  );
                 }}
               />
               {loading === "achievement" ? (
@@ -156,22 +175,19 @@ function Achievement(props) {
                   label={FormConfig.achievement.description.label}
                   type={FormConfig.achievement.description.type}
                   value={response}
-                  onChange={(event) => {
-                    event.preventDefault();
-                    setDescription(event.target.value);
-                  }}
+                  disabled
                 />
               ) : null}
             </div>
             <div>
               <button
-                onClick={handleClick}
+                onClick={() => handleClick(achievement.id)}
                 className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
               >
                 Improve with Magic ✨
               </button>
             </div>
-          </>
+          </Fragment>
         ))}
 
       <div>
