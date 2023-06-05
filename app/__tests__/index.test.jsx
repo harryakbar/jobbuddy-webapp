@@ -5,7 +5,6 @@ import Home from "../page";
 describe("Home", () => {
   it("renders a Dashboard", () => {
     render(<Home />);
-
     expect(screen.getByText("Dashboard")).toBeInTheDocument();
   });
 });
