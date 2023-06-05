@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Input from "../Input";
 import FormConfig from "../formConfig";
 import { createClient } from "@supabase/supabase-js";
@@ -134,7 +134,7 @@ function Education(props) {
       {educations &&
         Array.isArray(educations) &&
         educations.map((education) => (
-          <>
+          <Fragment key={education.id}>
             <Input
               label={FormConfig.education.title.label}
               type={FormConfig.education.title.type}
@@ -240,7 +240,7 @@ function Education(props) {
                 Improve with Magic ✨
               </button>
             </div>
-          </>
+          </Fragment>
         ))}
 
       <div>
