@@ -3,6 +3,14 @@ import "@testing-library/jest-dom";
 import Education from "./index";
 import { useState } from "react";
 
+// Mock the environment variables
+jest.mock("next/config", () => () => ({
+  publicRuntimeConfig: {
+    NEXT_PUBLIC_SUPABASE_URL: "mocked-supabase-url",
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: "mocked-supabase-anon-key",
+  },
+}));
+
 jest.mock("@supabase/supabase-js", () => ({
   createClient: jest.fn(() => ({
     // mock implementation of the Supabase client methods
