@@ -22,17 +22,14 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '16.13.1'
-        
-      # Step 3: Set environment variables
-      - name: Set environment variables
-        run: |
-          echo "NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>" >> $GITHUB_ENV
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>" >> $GITHUB_ENV
 
-      # Step 4: Install dependencies
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Step 5: Run tests
+      # Step 4: Run tests
       - name: Run tests
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: npm run test
