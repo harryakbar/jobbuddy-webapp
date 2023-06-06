@@ -17,7 +17,7 @@ const Form = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(
+    const response = supabase.auth?.onAuthStateChange(
       (_, session) => {
         if (session) {
           setUser(session.user);
@@ -25,8 +25,8 @@ const Form = () => {
       }
     );
     return () => {
-      if (typeof authListener?.unsubscribe === "function") {
-        authListener?.unsubscribe();
+      if (typeof response?.data?.unsubscribe === "function") {
+        response?.data?.unsubscribe();
       }
     };
   }, []);
