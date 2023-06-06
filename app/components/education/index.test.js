@@ -3,6 +3,17 @@ import "@testing-library/jest-dom";
 import Education from "./index";
 import { useState } from "react";
 
+jest.mock("@supabase/supabase-js", () => ({
+  createClient: jest.fn(() => ({
+    // mock implementation of the Supabase client methods
+    // you can customize these mock methods based on your test requirements
+    from: jest.fn().mockReturnThis(),
+    select: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    // ...add more mock methods as needed
+  })),
+}));
+
 jest.mock("react", () => ({
   ...jest.requireActual("react"),
   useState: jest.fn(),
