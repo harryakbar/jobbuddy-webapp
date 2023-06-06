@@ -24,8 +24,8 @@ jobs:
           node-version: '16.13.1'
 
       - name: Set environment variables
-        run: echo "NEXT_PUBLIC_SUPABASE_URL=$SUPABASE_URL" >> .env
-             echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
+        run: echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+             echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
 
       # Step 3: Install dependencies
       - name: Install dependencies
