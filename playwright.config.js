@@ -42,6 +42,10 @@ const config = {
     //   ignoreHTTPSErrors: true,
     // },
   },
+  reporter: [
+    ["list", { printSteps: true }],
+    ["json", { outputFile: "test-results.json" }],
+  ],
 
   projects: [
     {
