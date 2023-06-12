@@ -1,12 +1,9 @@
 "use client";
-import Image from "next/image";
+
 import styles from "../page.module.css";
 import "../global.css";
 import DashboardForm from "../components/dashboardForm";
 import classNames from "classnames";
-import EventHandler from "../components/EventHandler";
-import { useState } from "react";
-import { Configuration, OpenAIApi } from "openai";
 
 const Container = (props) => {
   return (
@@ -47,4 +44,3 @@ export default function Dashboard() {
     </main>
   );
 }
-

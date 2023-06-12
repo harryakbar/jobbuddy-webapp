@@ -13,7 +13,7 @@ const supabase = createClient(supabaseUrl, supabasePublicKey);
 function Achievement(props) {
   const { user } = props;
   const [loading, setLoading] = useState(null);
-  const [achievements, setAchievements] = useState(null);
+  const [achievements, setAchievements] = useState([]);
   const [response, setResponse] = useState(null);
 
   useEffect(() => {
@@ -140,7 +140,6 @@ function Achievement(props) {
                 type={FormConfig.achievement.description.type}
                 value={achievement.description}
                 onChange={(event) => {
-                  event.preventDefault();
                   handleChange(
                     "description",
                     achievement.id,

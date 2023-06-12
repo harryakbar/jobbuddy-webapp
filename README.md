@@ -12,6 +12,16 @@ yarn dev
 pnpm dev
 ```
 
+Test
+
+```bash
+npm run test
+
+npm run test:watch
+
+npm run test:e2e
+```
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
