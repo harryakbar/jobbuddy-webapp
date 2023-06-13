@@ -13,7 +13,7 @@ const supabase = createClient(supabaseUrl, supabasePublicKey);
 function Education(props) {
   const { user } = props;
   const [loading, setLoading] = useState(null);
-  const [educations, setEducations] = useState(null);
+  const [educations, setEducations] = useState([]);
   const [response, setResponse] = useState(null);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ function Education(props) {
     }
   }, [user]);
 
-  const handleClick = async () => {
+  const handleClick = async (id) => {
     const configuration = new Configuration({
       apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
     });
@@ -75,13 +75,13 @@ function Education(props) {
       return [
         ...prevState,
         {
-          institution: "Universitas Indonesia",
-          degree: "Undergraduate",
-          field_of_study: "Computer Science",
-          end_date: "2023-04-17",
-          start_date: "2027-04-17",
-          description: "Studying Computer Science",
-          grade: "A",
+          institution: "",
+          degree: "",
+          field_of_study: "",
+          end_date: "",
+          start_date: "",
+          description: "",
+          grade: "",
         },
       ];
     });
@@ -234,7 +234,7 @@ function Education(props) {
             </div>
             <div>
               <button
-                onClick={handleClick}
+                onClick={() => handleClick(education.id)}
                 className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
               >
                 Improve with Magic ✨

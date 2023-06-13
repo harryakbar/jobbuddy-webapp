@@ -12,7 +12,7 @@ const supabase = createClient(supabaseUrl, supabasePublicKey);
 function Experience(props) {
   const { user } = props;
   const [loading, setLoading] = useState(null);
-  const [experiences, setExperiences] = useState(null);
+  const [experiences, setExperiences] = useState([]);
   const [response, setResponse] = useState(null);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ function Experience(props) {
     }
   }, [user]);
 
-  const handleClick = async () => {
+  const handleClick = async (id) => {
     const configuration = new Configuration({
       apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
     });
@@ -233,7 +233,7 @@ function Experience(props) {
             </div>
             <div>
               <button
-                onClick={handleClick}
+                onClick={() => handleClick(experience.id)}
                 className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
               >
                 Improve with Magic ✨

@@ -7,8 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test-watch": "jest --watch",
-    "test": "jest  --coverage"
+    "test": "jest  --coverage",
+    "test:watch": "jest --watch",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.7.1",
@@ -25,6 +26,7 @@
   "devDependencies": {
     "@babel/preset-env": "^7.22.4",
     "@babel/preset-react": "^7.22.3",
+    "@playwright/test": "^1.34.3",
     "@tailwindcss/typography": "^0.5.9",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",

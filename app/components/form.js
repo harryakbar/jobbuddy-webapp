@@ -17,13 +17,11 @@ const Form = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const response = supabase.auth?.onAuthStateChange(
-      (_, session) => {
-        if (session) {
-          setUser(session.user);
-        }
+    const response = supabase.auth?.onAuthStateChange((_, session) => {
+      if (session) {
+        setUser(session.user);
       }
-    );
+    });
     return () => {
       if (typeof response?.data?.unsubscribe === "function") {
         response?.data?.unsubscribe();
