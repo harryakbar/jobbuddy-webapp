@@ -50,10 +50,7 @@ export default function Home() {
     if (error) {
       console.error("Error signing in with Google:", error);
     } else {
-      router.push({
-        pathname: "/profile",
-        query: { pid: post.id },
-      });
+      router.push("/profile");
 
       console.log("User signed in with Google:", user);
     }
@@ -65,8 +62,8 @@ export default function Home() {
         <article className="italic">
           Hey there! Have any questions or feedback? Reach out to us on Twitter!
           We love engaging with our users like you and hearing your thoughts.
-          Let's connect and make your job search experience even better with
-          MyJobBuddy!
+          Let&apos;s connect and make your job search experience even better
+          with MyJobBuddy!
         </article>
       </div>
 
