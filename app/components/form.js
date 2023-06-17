@@ -1,8 +1,6 @@
 "use client";
-import { useState } from "react";
 import EventHandler from "./EventHandler";
 import { createClient } from "@supabase/supabase-js";
-import { useEffect } from "react";
 import Input from "./Input";
 import FormConfig from "./formConfig";
 import Experience from "./experience";
@@ -13,33 +11,8 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabasePublicKey);
 
-const Form = () => {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const response = supabase.auth?.onAuthStateChange((_, session) => {
-      if (session) {
-        setUser(session.user);
-      }
-    });
-    return () => {
-      if (typeof response?.data?.unsubscribe === "function") {
-        response?.data?.unsubscribe();
-      }
-    };
-  }, []);
-
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-    });
-
-    if (error) {
-      console.error("Error signing in with Google:", error);
-    } else {
-      console.log("User signed in with Google:", user);
-    }
-  };
+const Form = (props) => {
+  const { user } = props;
 
   const handleSubmit = async () => {
     // Save the experience data to Supabase
@@ -66,11 +39,7 @@ const Form = () => {
   return (
     <form onSubmit={EventHandler} className="w-full md:p-12">
       <div className="bg-white drop-shadow-md rounded-md p-4 w-full">
-        {user ? (
-          user.user_metadata.full_name
-        ) : (
-          <button onClick={signInWithGoogle}>Sign in with Google</button>
-        )}
+        {user ? user.user_metadata.full_name : null}
         <h3 className="font-bold">Create Your Job Profile</h3>
 
         <div className="flex row items-center my-4">

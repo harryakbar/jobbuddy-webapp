@@ -24,6 +24,6 @@ jest.mock("@supabase/supabase-js", () => ({
 describe("Home", () => {
   it("renders a Dashboard", () => {
     render(<Home />);
-    expect(screen.getByText("Dashboard")).toBeInTheDocument();
+    expect(screen.getByText("Get started")).toBeInTheDocument();
   });
 });
