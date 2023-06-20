@@ -69,6 +69,8 @@ export default function Home() {
 
       <Container className="w-1/2 p-10 flex items-center content-center">
         <div>
+        <input type="text" placeholder="Email" className="input input-bordered input-primary w-full max-w-xs" />
+        <input type="password" placeholder="Type Your Password" className="input input-bordered input-primary w-full max-w-xs" />
           <button onClick={signInWithGoogle}>Sign in with Google</button>
         </div>
       </Container>

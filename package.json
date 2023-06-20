@@ -33,6 +33,7 @@
     "autoprefixer": "^10.4.14",
     "babel-cli": "^6.26.0",
     "babel-preset-react": "^6.24.1",
+    "daisyui": "^3.1.1",
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",
     "postcss": "^8.4.23",
