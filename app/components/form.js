@@ -7,7 +7,7 @@ import Experience from "./experience";
 import Education from "./education";
 import Achievement from "./achievement";
 import { useState } from "react";
-import Container from "../profile/components/Container";
+import Container from "../profile/components/container";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

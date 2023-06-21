@@ -5,7 +5,7 @@ import Form from "../components/form";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import Container from "./components/Container";
+import Container from "./components/container";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
