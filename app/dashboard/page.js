@@ -29,11 +29,43 @@ const Container = (props) => {
 export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState(null);
-  const [tableData, setTableData] = useState([]);
+  const [clTableData, setCLTableData] = useState([]);
+  const [expTableData, setExpTableData] = useState(null);
+  const [eduTableData, setEduTableData] = useState(null);
+
 
   useEffect(() => {
     // Fetch data from Supabase
-    const fetchData = async () => {
+    const fetchExpData = async () => {
+        const { count, error } = await supabase
+        .from("experiences")
+        .select("count", { count: "exact" })
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Error fetching data:", error.message);
+        return;
+      }
+
+      // Store fetched data in state variable
+      setExpTableData(count);
+    }
+    const fetchEduData = async () => {
+        const { count, error } = await supabase
+        .from("educations")
+        .select("count", { count: "exact" })
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Error fetching data:", error.message);
+        return;s
+      }
+
+      // Store fetched data in state variable
+      setEduTableData(count);
+    }
+
+    const fetchCLData = async () => {
       const { data, error } = await supabase
         .from("cover_letters")
         .select("company_name, role, created_at")
@@ -45,14 +77,17 @@ export default function Dashboard() {
       }
 
       // Store fetched data in state variable
-      setTableData(data);
+      setCLTableData(data);
     };
     if (user !== null) {
-      fetchData();
+      fetchExpData();
+      fetchEduData();
+      if(expTableData !== 0 || eduTableData !== 0) {
+        console.log("masuk?")
+        fetchCLData();
+      }
     }
   }, [user]);
-
-  console.log(tableData);
 
   useEffect(() => {
     const response = supabase.auth?.onAuthStateChange((_, session) => {
@@ -116,7 +151,7 @@ export default function Dashboard() {
           </div>
         </div>
       </Container>
-      
+
       <Container className="h-full">
         <div className="overflow-x-auto">
           <table className="table">
@@ -135,7 +170,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {tableData.map((row) => (
+              {clTableData.map((row) => (
                 <tr key={row.id}>
                   <th>
                     <label>
