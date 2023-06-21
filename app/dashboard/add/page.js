@@ -1,7 +1,7 @@
 "use client";
 
-import styles from "../page.module.css";
-import "../global.css";
+import styles from "../../page.module.css";
+import "../../global.css";
 import DashboardForm from "../../components/coverLetterForm";
 import classNames from "classnames";
 

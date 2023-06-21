@@ -2,7 +2,7 @@
 import "../global.css";
 import classNames from "classnames";
 import { createClient } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -24,9 +24,79 @@ const Container = (props) => {
   );
 };
 
+const Input = (props) => {
+  const { label, type, onChange, value, disabled, isMagic } = props;
+  const isTextArea = type === "textarea";
+
+  if (isTextArea) {
+    return (
+      <div className="flex flex-col w-full md:w-1/2">
+        <span>{label}</span>
+        <textarea
+          onChange={onChange}
+          type={type}
+          className="border border-slate-300 rounded-md p-2"
+          value={value}
+          disabled={disabled}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col w-full md:w-1/2">
+      <span>{label}</span>
+      <input
+        onChange={onChange}
+        type={type}
+        className="border border-slate-300 rounded-md p-2"
+        value={value}
+        disabled={disabled}
+      />
+    </div>
+  );
+};
+
+const FormConfig = {
+  // Sign In
+  email: {
+    label: "Email",
+    type: "email",
+  },
+  password: {
+    label: "Password",
+    type: "password",
+  },
+};
+
 export default function Home() {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  console.log(user)
+  const signInWithPassword = async () => {
+    try {
+      // Sign in with email
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      console.log(user)
+      if (error) {
+        console.error("Error signing in:", error.message);
+        return;
+      }
+
+      // Sign-in successful
+      router.push("/dashboard");
+      console.log("Sign in successful!");
+    } catch (error) {
+      console.error("Error signing in:", error.message);
+    }
+  };
 
   useEffect(() => {
     const response = supabase.auth?.onAuthStateChange((_, session) => {
@@ -69,9 +139,32 @@ export default function Home() {
 
       <Container className="w-1/2 p-10 flex items-center content-center">
         <div>
-        <input type="text" placeholder="Email" className="input input-bordered input-primary w-full max-w-xs" />
-        <input type="password" placeholder="Type Your Password" className="input input-bordered input-primary w-full max-w-xs" />
-          <button onClick={signInWithGoogle}>Sign in with Google</button>
+          <div>
+            <Input
+              label={FormConfig.email.label}
+              type={FormConfig.email.type}
+              placeholder="Email"
+              onChange={(event) => {
+                event.preventDefault();
+                setEmail(event.target.value);
+              }}
+            />
+            <Input
+              label={FormConfig.password.label}
+              type={FormConfig.password.type}
+              placeholder="Type Your Password"
+              onChange={(event) => {
+                event.preventDefault();
+                setPassword(event.target.value);
+              }}
+            />
+            <button className="btn btn-primary" onClick={signInWithPassword}>
+              Sign In
+            </button>
+          </div>
+          <div>
+            <button onClick={signInWithGoogle}>Sign in with Google</button>
+          </div>
         </div>
       </Container>
     </main>

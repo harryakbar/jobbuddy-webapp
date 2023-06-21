@@ -6,6 +6,7 @@ import DashboardForm from "../components/coverLetterForm";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -26,7 +27,32 @@ const Container = (props) => {
 };
 
 export default function Dashboard() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
+  const [tableData, setTableData] = useState([]);
+
+  useEffect(() => {
+    // Fetch data from Supabase
+    const fetchData = async () => {
+      const { data, error } = await supabase
+        .from("cover_letters")
+        .select("company_name, role, created_at")
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Error fetching data:", error.message);
+        return;
+      }
+
+      // Store fetched data in state variable
+      setTableData(data);
+    };
+    if (user !== null) {
+      fetchData();
+    }
+  }, [user]);
+
+  console.log(tableData);
 
   useEffect(() => {
     const response = supabase.auth?.onAuthStateChange((_, session) => {
@@ -41,7 +67,21 @@ export default function Dashboard() {
     };
   }, []);
 
-  console.log(user)
+  const signOut = async () => {
+    try {
+      // Sign in with email
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Error sign out:", error.message);
+        return;
+      }
+      // Sign-out successful
+      router.push("/sign-in");
+      console.log("Sign out successful!");
+    } catch (error) {
+      console.error("Error signing out:", error.message);
+    }
+  };
 
   return (
     <main className={classNames(styles.main, "p-4 sm:p-8 h-auto")}>
@@ -63,20 +103,20 @@ export default function Dashboard() {
                 className="mt-3 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52"
               >
                 <li>
-                  <a>Profile</a>
+                  <a onClick={signOut}>Profile</a>
                 </li>
                 <li>
                   <a>Settings</a>
                 </li>
                 <li>
-                  <a>Sign Out</a>
+                  <a onClick={signOut}>Sign Out</a>
                 </li>
               </ul>
             </div>
           </div>
         </div>
       </Container>
-
+      
       <Container className="h-full">
         <div className="overflow-x-auto">
           <table className="table">
@@ -95,144 +135,33 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {/* row 1 */}
-              <tr>
-                <th>
-                  <label>
-                    <input type="checkbox" className="checkbox" />
-                  </label>
-                </th>
-                <td>
-                  <div>
-                    <div className="font-bold">Hart Hagerty</div>
-                    <div className="text-sm opacity-50">United States</div>
-                  </div>
-                </td>
-                <td>
-                  Zemlak, Daniel and Leannon
-                  <br />
-                  <span className="badge badge-ghost badge-sm">
-                    Desktop Support Technician
-                  </span>
-                </td>
-                <td>Purple</td>
-                <th>
-                  <button className="btn btn-ghost btn-xs">details</button>
-                </th>
-              </tr>
-              {/* row 2 */}
-              <tr>
-                <th>
-                  <label>
-                    <input type="checkbox" className="checkbox" />
-                  </label>
-                </th>
-                <td>
-                  <div className="flex items-center space-x-3">
-                    <div className="avatar">
-                      <div className="mask mask-squircle w-12 h-12">
-                        <img
-                          src="/tailwind-css-component-profile-3@56w.png"
-                          alt="Avatar Tailwind CSS Component"
-                        />
-                      </div>
-                    </div>
+              {tableData.map((row) => (
+                <tr key={row.id}>
+                  <th>
+                    <label>
+                      <input type="checkbox" className="checkbox" />
+                    </label>
+                  </th>
+                  <td>
                     <div>
-                      <div className="font-bold">Brice Swyre</div>
-                      <div className="text-sm opacity-50">China</div>
+                      <div className="font-bold">{row.company_name}</div>
                     </div>
-                  </div>
-                </td>
-                <td>
-                  Carroll Group
-                  <br />
-                  <span className="badge badge-ghost badge-sm">
-                    Tax Accountant
-                  </span>
-                </td>
-                <td>Red</td>
-                <th>
-                  <button className="btn btn-ghost btn-xs">details</button>
-                </th>
-              </tr>
-              {/* row 3 */}
-              <tr>
-                <th>
-                  <label>
-                    <input type="checkbox" className="checkbox" />
-                  </label>
-                </th>
-                <td>
-                  <div className="flex items-center space-x-3">
-                    <div className="avatar">
-                      <div className="mask mask-squircle w-12 h-12">
-                        <img
-                          src="/tailwind-css-component-profile-4@56w.png"
-                          alt="Avatar Tailwind CSS Component"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-bold">Marjy Ferencz</div>
-                      <div className="text-sm opacity-50">Russia</div>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  Rowe-Schoen
-                  <br />
-                  <span className="badge badge-ghost badge-sm">
-                    Office Assistant I
-                  </span>
-                </td>
-                <td>Crimson</td>
-                <th>
-                  <button className="btn btn-ghost btn-xs">details</button>
-                </th>
-              </tr>
-              {/* row 4 */}
-              <tr>
-                <th>
-                  <label>
-                    <input type="checkbox" className="checkbox" />
-                  </label>
-                </th>
-                <td>
-                  <div className="flex items-center space-x-3">
-                    <div className="avatar">
-                      <div className="mask mask-squircle w-12 h-12">
-                        <img
-                          src="/tailwind-css-component-profile-5@56w.png"
-                          alt="Avatar Tailwind CSS Component"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-bold">Yancy Tear</div>
-                      <div className="text-sm opacity-50">Brazil</div>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  Wyman-Ledner
-                  <br />
-                  <span className="badge badge-ghost badge-sm">
-                    Community Outreach Specialist
-                  </span>
-                </td>
-                <td>Indigo</td>
-                <th>
-                  <button className="btn btn-ghost btn-xs">details</button>
-                </th>
-              </tr>
+                  </td>
+                  <td>{row.role}</td>
+                  <td>{row.created_at}</td>
+                  <th>
+                    <button className="btn btn-ghost btn-xs">details</button>
+                  </th>
+                </tr>
+              ))}
             </tbody>
             {/* foot */}
             <tfoot>
               <tr>
                 <th></th>
-                <th>Name</th>
-                <th>Job</th>
-                <th>Favorite Color</th>
+                <th>Company</th>
+                <th>Role</th>
+                <th>Created Date</th>
                 <th></th>
               </tr>
             </tfoot>
