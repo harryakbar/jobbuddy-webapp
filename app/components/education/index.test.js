@@ -53,9 +53,9 @@ describe("Education Component", () => {
     expect(titleElement).toBeInTheDocument();
   });
 
-  test("renders add education button", () => {
-    const addButton = screen.getByText("+ Add Education");
-    expect(addButton).toBeInTheDocument();
+  test("renders edit education button", () => {
+    const editButton = screen.getByText("✏️ Edit");
+    expect(editButton).toBeInTheDocument();
   });
 
   test("displays loading state while fetching data", () => {
