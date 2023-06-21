@@ -5,25 +5,11 @@ import Form from "../components/form";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { Container } from "./components/Container";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabasePublicKey);
-
-const Container = (props) => {
-  return (
-    <div
-      className={classNames(
-        "flex flex-row mb-4 row drop-shadow-md bg-[#FFFDF6] rounded-md w-full place-content-between justify-between",
-        props.margin || "m-2",
-        props.padding || "p-2",
-        props.className || ""
-      )}
-    >
-      {props.children}
-    </div>
-  );
-};
 
 export default function Home() {
   const [user, setUser] = useState(null);

@@ -4,6 +4,7 @@ import { Fragment, useEffect, useState } from "react";
 import { Configuration, OpenAIApi } from "openai";
 import Input from "../Input";
 import FormConfig from "../formConfig";
+import { MODES } from "../form";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -14,6 +15,7 @@ function Experience(props) {
   const [loading, setLoading] = useState(null);
   const [experiences, setExperiences] = useState([]);
   const [response, setResponse] = useState(null);
+  const [mode, setMode] = useState(MODES.view);
 
   useEffect(() => {
     async function fetchData() {
@@ -95,162 +97,195 @@ function Experience(props) {
     }
   };
 
-  const handleSaveData = async () => {
-    const { data, error } = await supabase.from("experiences").insert([
-      {
-        position: "Software Engineer",
-        company_name: "Google",
-        start_date: "2023-04-17",
-        end_date: null,
-        is_current: true,
-        user_id: user.id,
-        description: "",
-      },
-    ]);
+  const handleEditProfile = () => {
+    setMode(MODES.edit);
+  };
 
-    if (error) {
-      console.error("Error saving experience:", error);
-    } else {
-      console.log("Experience saved successfully:", data);
-    }
+  const handleSaveData = async () => {
+    // const { data, error } = await supabase.from("experiences").insert([
+    //   {
+    //     position: "Software Engineer",
+    //     company_name: "Google",
+    //     start_date: "2023-04-17",
+    //     end_date: null,
+    //     is_current: true,
+    //     user_id: user.id,
+    //     description: "",
+    //   },
+    // ]);
+
+    // if (error) {
+    //   console.error("Error saving experience:", error);
+    // } else {
+    //   console.log("Experience saved successfully:", data);
+    // }
+    setMode(MODES.view);
   };
 
   return (
     <>
-      <div className="flex flex-row items-center w-[100%] place-content-between">
+      <div className="flex flex-row items-center w-[100%] place-content-between mb-8">
         <span className="font-bold">Experience</span>
-        <button
-          onClick={handleSaveData}
-          className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
-        >
-          💾 Save Experience
-        </button>
+        {mode === MODES.edit ? (
+          <button
+            onClick={handleSaveData}
+            className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+          >
+            💾 Save Experience
+          </button>
+        ) : (
+          <button
+            onClick={handleEditProfile}
+            className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+          >
+            ✏️ Edit
+          </button>
+        )}
       </div>
-      {experiences &&
-        Array.isArray(experiences) &&
-        experiences.map((experience) => (
-          <Fragment key={experience.id}>
-            <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
-              <Input
-                label={FormConfig.company.label}
-                type={FormConfig.company.type}
-                value={experience.company_name}
-                onChange={(event) => {
-                  handleChange(
-                    "company_name",
-                    experience.id,
-                    event.target.value
-                  );
-                }}
-              />
-              <Input
-                label={FormConfig.role.label}
-                type={FormConfig.role.type}
-                value={experience.position}
-                onChange={(event) => {
-                  handleChange("position", experience.id, event.target.value);
-                }}
-              />
-            </div>
+      <div className="border-l-4 pl-6 pb-0 mb-0">
+        {experiences &&
+          Array.isArray(experiences) &&
+          experiences.map((experience) => (
+            <Fragment key={experience.id}>
+              <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
+                <Input
+                  mode={mode}
+                  label={FormConfig.company.label}
+                  type={FormConfig.company.type}
+                  value={experience.company_name}
+                  onChange={(event) => {
+                    handleChange(
+                      "company_name",
+                      experience.id,
+                      event.target.value
+                    );
+                  }}
+                />
+                <Input
+                  mode={mode}
+                  label={FormConfig.role.label}
+                  type={FormConfig.role.type}
+                  value={experience.position}
+                  onChange={(event) => {
+                    handleChange("position", experience.id, event.target.value);
+                  }}
+                />
+              </div>
 
-            <label>
-              <input
-                type="checkbox"
-                checked={experience.is_current}
-                onChange={() => {
-                  handleChange(
-                    "is_current",
-                    experience.id,
-                    !experience.is_current
-                  );
-                }}
-              />
-              <span className="ml-2">I am currently working in this role</span>
-            </label>
+              <label className="flex mb-8">
+                <input
+                  mode={mode}
+                  type="checkbox"
+                  checked={experience.is_current}
+                  onChange={() => {
+                    handleChange(
+                      "is_current",
+                      experience.id,
+                      !experience.is_current
+                    );
+                  }}
+                />
+                <span className="ml-2">
+                  I am currently working in this role
+                </span>
+              </label>
 
-            <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
-              <Input
-                label={FormConfig.start_date.label}
-                type={FormConfig.start_date.type}
-                value={experience.start_date}
-                onChange={(event) => {
-                  handleChange("start_date", experience.id, event.target.value);
-                }}
-              />
-              <Input
-                label={FormConfig.end_date.label}
-                type={FormConfig.end_date.type}
-                value={experience.end_date}
-                disabled={experience.is_current}
-                onChange={(event) => {
-                  handleChange("end_date", experience.id, event.target.value);
-                }}
-              />
-            </div>
-            <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
-              <Input
-                label={FormConfig.experience_description.label}
-                type={FormConfig.experience_description.type}
-                value={experience.description}
-                onChange={(event) => {
-                  handleChange(
-                    "description",
-                    experience.id,
-                    event.target.value
-                  );
-                }}
-              />
-              {loading === "experience" ? (
-                <div className="flex flex-col w-1/2">
-                  <span className="relative flex">
-                    <span
-                      className="animate-spin ease-in-out h-5 w-5 mr-3"
-                      viewBox="0 0 24 24"
-                    >
-                      🪄
+              <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
+                <Input
+                  mode={mode}
+                  label={FormConfig.start_date.label}
+                  type={FormConfig.start_date.type}
+                  value={experience.start_date}
+                  onChange={(event) => {
+                    handleChange(
+                      "start_date",
+                      experience.id,
+                      event.target.value
+                    );
+                  }}
+                />
+                <Input
+                  mode={mode}
+                  label={FormConfig.end_date.label}
+                  type={FormConfig.end_date.type}
+                  value={experience.end_date}
+                  disabled={experience.is_current}
+                  onChange={(event) => {
+                    handleChange("end_date", experience.id, event.target.value);
+                  }}
+                />
+              </div>
+              <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
+                <Input
+                  mode={mode}
+                  label={FormConfig.experience_description.label}
+                  type={FormConfig.experience_description.type}
+                  value={experience.description}
+                  onChange={(event) => {
+                    handleChange(
+                      "description",
+                      experience.id,
+                      event.target.value
+                    );
+                  }}
+                />
+                {loading === "experience" ? (
+                  <div className="flex flex-col w-1/2">
+                    <span className="relative flex">
+                      <span
+                        className="animate-spin ease-in-out h-5 w-5 mr-3"
+                        viewBox="0 0 24 24"
+                      >
+                        🪄
+                      </span>
+                      Doing magic...
                     </span>
-                    Doing magic...
-                  </span>
-                  <div className="border border-blue-300 shadow rounded-md w-full h-full">
-                    <div className="animate-pulse p-2">
-                      <div className="flex-1 space-y-2">
-                        <div className="h-2 bg-slate-200 rounded"></div>
-                        <div className="h-2 bg-slate-200 rounded"></div>
-                        <div className="h-2 bg-slate-200 rounded"></div>
+                    <div className="border border-blue-300 shadow rounded-md w-full h-full">
+                      <div className="animate-pulse p-2">
+                        <div className="flex-1 space-y-2">
+                          <div className="h-2 bg-slate-200 rounded"></div>
+                          <div className="h-2 bg-slate-200 rounded"></div>
+                          <div className="h-2 bg-slate-200 rounded"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
+                ) : null}
+                {response ? (
+                  <Input
+                    mode={mode}
+                    label="Here's our suggestion:"
+                    type={FormConfig.experience_description.type}
+                    value={response}
+                    disabled
+                  />
+                ) : null}
+              </div>
+              {mode === MODES.edit && (
+                <div className="mb-8">
+                  <button
+                    onClick={() => handleClick(experience.id)}
+                    className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+                  >
+                    Improve with Magic ✨
+                  </button>
                 </div>
-              ) : null}
-              {response ? (
-                <Input
-                  label="Here's our suggestion:"
-                  type={FormConfig.experience_description.type}
-                  value={response}
-                  disabled
-                />
-              ) : null}
-            </div>
-            <div>
-              <button
-                onClick={() => handleClick(experience.id)}
-                className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
-              >
-                Improve with Magic ✨
-              </button>
-            </div>
-            <div className="border" />
-          </Fragment>
-        ))}
-
-      <div>
-        <button
-          onClick={handleAdd}
-          className="rounded-md text-white px-4 py-2 bg-[#8EB8E2] cursor-pointer"
-        >
-          + Add Experience
-        </button>
+              )}
+              <div className="border mb-8" />
+            </Fragment>
+          ))}
       </div>
+
+      {mode === MODES.edit && (
+        <div className="mt-6">
+          <button
+            onClick={handleAdd}
+            className="rounded-md text-white px-4 py-2 bg-[#8EB8E2] cursor-pointer"
+          >
+            + Add Experience
+          </button>
+        </div>
+      )}
     </>
   );
 }
