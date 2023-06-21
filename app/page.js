@@ -110,7 +110,7 @@ export default function Home() {
             <span className="font-bold mt-10">Enter job description</span>
             <p>
               Share the role and job description you want to apply for, and
-              we'll customize your cover letter to fit perfectly.
+              we&apos;ll customize your cover letter to fit perfectly.
             </p>
           </div>
           <div className="space-y-4 max-w-[350px]">
