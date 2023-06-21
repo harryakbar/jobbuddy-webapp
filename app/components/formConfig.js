@@ -11,6 +11,18 @@ const FormConfig = {
     label: "Phone Number",
     type: "phone",
   },
+  website: {
+    label: "Website",
+    type: "text",
+  },
+  location: {
+    label: "Location",
+    type: "text",
+  },
+  profile_summary: {
+    label: "Profile Summary",
+    type: "textarea",
+  },
 
   // Experience
   company: {

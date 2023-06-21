@@ -5,6 +5,7 @@ import Input from "../Input";
 import FormConfig from "../formConfig";
 import { createClient } from "@supabase/supabase-js";
 import { Configuration, OpenAIApi } from "openai";
+import { MODES } from "../form";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -15,6 +16,7 @@ function Education(props) {
   const [loading, setLoading] = useState(null);
   const [educations, setEducations] = useState([]);
   const [response, setResponse] = useState(null);
+  const [mode, setMode] = useState(MODES.view);
 
   useEffect(() => {
     // Fetch data from a table
@@ -87,25 +89,30 @@ function Education(props) {
     });
   };
 
-  const handleSaveData = async () => {
-    const { data, error } = await supabase.from("educations").insert([
-      {
-        user_id: user.id,
-        institution: "Universitas Indonesia",
-        degree: "Undergraduate",
-        field_of_study: "Computer Science",
-        end_date: "2023-04-17",
-        start_date: "2027-04-17",
-        description: "Studying Computer Science",
-        grade: "A",
-      },
-    ]);
+  const handleEditProfile = () => {
+    setMode(MODES.edit);
+  };
 
-    if (error) {
-      console.error("Error saving experience:", error);
-    } else {
-      console.log("Experience saved successfully:", data);
-    }
+  const handleSaveData = async () => {
+    // const { data, error } = await supabase.from("educations").insert([
+    //   {
+    //     user_id: user.id,
+    //     institution: "Universitas Indonesia",
+    //     degree: "Undergraduate",
+    //     field_of_study: "Computer Science",
+    //     end_date: "2023-04-17",
+    //     start_date: "2027-04-17",
+    //     description: "Studying Computer Science",
+    //     grade: "A",
+    //   },
+    // ]);
+
+    // if (error) {
+    //   console.error("Error saving experience:", error);
+    // } else {
+    //   console.log("Experience saved successfully:", data);
+    // }
+    setMode(MODES.view);
   };
 
   const handleChange = (fieldName, id, newValue) => {
@@ -122,20 +129,30 @@ function Education(props) {
 
   return (
     <>
-      <div className="flex flex-row items-center w-[100%] place-content-between">
+      <div className="flex flex-row items-center w-[100%] place-content-between mb-8">
         <span className="font-bold">Education</span>
-        <button
-          onClick={handleSaveData}
-          className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
-        >
-          💾 Save Experience
-        </button>
+        {mode === MODES.edit ? (
+          <button
+            onClick={handleSaveData}
+            className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+          >
+            💾 Save Education
+          </button>
+        ) : (
+          <button
+            onClick={handleEditProfile}
+            className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+          >
+            ✏️ Edit
+          </button>
+        )}
       </div>
       {educations &&
         Array.isArray(educations) &&
         educations.map((education) => (
           <Fragment key={education.id}>
             <Input
+              mode={mode}
               label={FormConfig.education.title.label}
               type={FormConfig.education.title.type}
               value={education.institution}
@@ -145,6 +162,7 @@ function Education(props) {
             />
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
               <Input
+                mode={mode}
                 label={FormConfig.education.degree.label}
                 type={FormConfig.education.degree.type}
                 value={education.degree}
@@ -153,6 +171,7 @@ function Education(props) {
                 }
               />
               <Input
+                mode={mode}
                 label={FormConfig.education.field_of_study.label}
                 type={FormConfig.education.field_of_study.type}
                 value={education.field_of_study}
@@ -167,6 +186,7 @@ function Education(props) {
             </div>
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
               <Input
+                mode={mode}
                 label={FormConfig.start_date.label}
                 type={FormConfig.start_date.type}
                 value={education.start_date}
@@ -175,6 +195,7 @@ function Education(props) {
                 }
               />
               <Input
+                mode={mode}
                 label={FormConfig.end_date.label}
                 type={FormConfig.end_date.type}
                 value={education.end_date}
@@ -184,6 +205,7 @@ function Education(props) {
               />
             </div>
             <Input
+              mode={mode}
               label={FormConfig.education.grade.label}
               type={FormConfig.education.grade.type}
               value={education.grade}
@@ -193,6 +215,7 @@ function Education(props) {
             />
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
               <Input
+                mode={mode}
                 label={FormConfig.education.education_desc.label}
                 type={FormConfig.education.education_desc.type}
                 value={education.description}
@@ -224,6 +247,7 @@ function Education(props) {
               ) : null}
               {response ? (
                 <Input
+                  mode={mode}
                   isMagic
                   label="Here's our suggestion:"
                   type={FormConfig.experience_description.type}
@@ -232,25 +256,30 @@ function Education(props) {
                 />
               ) : null}
             </div>
-            <div>
-              <button
-                onClick={() => handleClick(education.id)}
-                className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
-              >
-                Improve with Magic ✨
-              </button>
-            </div>
+            {mode === MODES.edit && (
+              <div className="mb-8">
+                <button
+                  onClick={() => handleClick(education.id)}
+                  className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+                >
+                  Improve with Magic ✨
+                </button>
+              </div>
+            )}
+            <div className="border mb-8" />
           </Fragment>
         ))}
 
-      <div>
-        <button
-          onClick={handleAdd}
-          className="rounded-md text-white px-4 py-2 bg-[#8EB8E2] cursor-pointer"
-        >
-          + Add Education
-        </button>
-      </div>
+      {mode === MODES.edit && (
+        <div>
+          <button
+            onClick={handleAdd}
+            className="rounded-md text-white px-4 py-2 bg-[#8EB8E2] cursor-pointer"
+          >
+            + Add Education
+          </button>
+        </div>
+      )}
     </>
   );
 }

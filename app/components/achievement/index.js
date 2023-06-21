@@ -5,6 +5,7 @@ import Input from "../Input";
 import FormConfig from "../formConfig";
 import { createClient } from "@supabase/supabase-js";
 import { Configuration, OpenAIApi } from "openai";
+import { MODES } from "../form";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -15,6 +16,7 @@ function Achievement(props) {
   const [loading, setLoading] = useState(null);
   const [achievements, setAchievements] = useState([]);
   const [response, setResponse] = useState(null);
+  const [mode, setMode] = useState(MODES.view);
 
   useEffect(() => {
     async function fetchData() {
@@ -96,37 +98,53 @@ function Achievement(props) {
   };
 
   const handleSaveData = async () => {
-    const { data, error } = await supabase.from("achievements").insert([
-      {
-        user_id: user.id,
-        title: "Gemastik 11 Winner",
-        description: "Security",
-      },
-    ]);
+    // const { data, error } = await supabase.from("achievements").insert([
+    //   {
+    //     user_id: user.id,
+    //     title: "Gemastik 11 Winner",
+    //     description: "Security",
+    //   },
+    // ]);
 
-    if (error) {
-      console.error("Error saving achievements:", error);
-    } else {
-      console.log("Achievements saved successfully:", data);
-    }
+    // if (error) {
+    //   console.error("Error saving achievements:", error);
+    // } else {
+    //   console.log("Achievements saved successfully:", data);
+    // }
+
+    setMode(MODES.view);
+  };
+
+  const handleEditProfile = () => {
+    setMode(MODES.edit);
   };
 
   return (
     <>
-      <div className="flex flex-row items-center w-[100%] place-content-between">
+      <div className="flex flex-row items-center w-[100%] place-content-between mb-8">
         <span className="font-bold">Achievement</span>
-        <button
-          onClick={handleSaveData}
-          className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
-        >
-          💾 Save Experience
-        </button>
+        {mode === MODES.edit ? (
+          <button
+            onClick={handleSaveData}
+            className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+          >
+            💾 Save Achievement
+          </button>
+        ) : (
+          <button
+            onClick={handleEditProfile}
+            className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+          >
+            ✏️ Edit
+          </button>
+        )}
       </div>
       {achievements &&
         Array.isArray(achievements) &&
         achievements.map((achievement) => (
           <Fragment key={achievement.id}>
             <Input
+              mode={mode}
               label={FormConfig.achievement.title.label}
               type={FormConfig.achievement.title.type}
               value={achievement.title}
@@ -136,6 +154,7 @@ function Achievement(props) {
             />
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
               <Input
+                mode={mode}
                 label={FormConfig.achievement.description.label}
                 type={FormConfig.achievement.description.type}
                 value={achievement.description}
@@ -171,6 +190,7 @@ function Achievement(props) {
               ) : null}
               {response ? (
                 <Input
+                  mode={mode}
                   label={FormConfig.achievement.description.label}
                   type={FormConfig.achievement.description.type}
                   value={response}
@@ -178,25 +198,30 @@ function Achievement(props) {
                 />
               ) : null}
             </div>
-            <div>
-              <button
-                onClick={() => handleClick(achievement.id)}
-                className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
-              >
-                Improve with Magic ✨
-              </button>
-            </div>
+            {mode === MODES.edit && (
+              <div className="mb-8">
+                <button
+                  onClick={() => handleClick(achievement.id)}
+                  className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+                >
+                  Improve with Magic ✨
+                </button>
+              </div>
+            )}
+            <div className="border mb-8" />
           </Fragment>
         ))}
 
-      <div>
-        <button
-          onClick={handleAdd}
-          className="rounded-md text-white px-4 py-2 bg-[#8EB8E2] cursor-pointer"
-        >
-          + Add Achievement
-        </button>
-      </div>
+      {mode === MODES.edit && (
+        <div>
+          <button
+            onClick={handleAdd}
+            className="rounded-md text-white px-4 py-2 bg-[#8EB8E2] cursor-pointer"
+          >
+            + Add Achievement
+          </button>
+        </div>
+      )}
     </>
   );
 }
