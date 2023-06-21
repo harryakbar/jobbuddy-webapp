@@ -1,6 +1,6 @@
 import classNames from "classnames";
 
-export const Container = (props) => {
+const Container = (props) => {
   return (
     <div
       className={classNames(
@@ -14,3 +14,5 @@ export const Container = (props) => {
     </div>
   );
 };
+
+export default Container;
