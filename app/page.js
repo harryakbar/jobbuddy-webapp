@@ -81,6 +81,7 @@ export default function Home() {
           width={678}
           height={707}
           className="absolute bottom-0 right-0 rounded-br-xl"
+          alt="Job Buddy Waving"
         />
       </div>
 
@@ -93,6 +94,7 @@ export default function Home() {
               width={350}
               height={350}
               className="rounded-xl mb-4"
+              alt="How it works section"
             />
             <span className="font-bold mt-10">Make your profile</span>
             <p>
@@ -106,6 +108,7 @@ export default function Home() {
               width={350}
               height={350}
               className="rounded-xl mb-4"
+              alt="Enter job description section"
             />
             <span className="font-bold mt-10">Enter job description</span>
             <p>
@@ -119,6 +122,7 @@ export default function Home() {
               width={350}
               height={350}
               className="rounded-xl mb-4"
+              alt="Generate cover letter section"
             />
             <span className="font-bold mt-10">Generate cover letter</span>
             <p>
