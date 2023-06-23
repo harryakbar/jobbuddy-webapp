@@ -158,25 +158,16 @@ export default function Dashboard() {
             {/* head */}
             <thead>
               <tr>
-                <th>
-                  <label>
-                    <input type="checkbox" className="checkbox" />
-                  </label>
-                </th>
                 <th>Company</th>
                 <th>Role</th>
                 <th>Created Date</th>
                 <th></th>
               </tr>
             </thead>
+            {/* body */}
             <tbody>
               {clTableData.map((row) => (
                 <tr key={row.id}>
-                  <th>
-                    <label>
-                      <input type="checkbox" className="checkbox" />
-                    </label>
-                  </th>
                   <td>
                     <div>
                       <div className="font-bold">{row.company_name}</div>
@@ -193,7 +184,6 @@ export default function Dashboard() {
             {/* foot */}
             <tfoot>
               <tr>
-                <th></th>
                 <th>Company</th>
                 <th>Role</th>
                 <th>Created Date</th>
