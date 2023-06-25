@@ -7,6 +7,7 @@ import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -33,11 +34,10 @@ export default function Dashboard() {
   const [expTableData, setExpTableData] = useState(null);
   const [eduTableData, setEduTableData] = useState(null);
 
-
   useEffect(() => {
     // Fetch data from Supabase
     const fetchExpData = async () => {
-        const { count, error } = await supabase
+      const { count, error } = await supabase
         .from("experiences")
         .select("count", { count: "exact" })
         .eq("user_id", user.id);
@@ -49,26 +49,27 @@ export default function Dashboard() {
 
       // Store fetched data in state variable
       setExpTableData(count);
-    }
+    };
     const fetchEduData = async () => {
-        const { count, error } = await supabase
+      const { count, error } = await supabase
         .from("educations")
         .select("count", { count: "exact" })
         .eq("user_id", user.id);
 
       if (error) {
         console.error("Error fetching data:", error.message);
-        return;s
+        return;
+        s;
       }
 
       // Store fetched data in state variable
       setEduTableData(count);
-    }
+    };
 
     const fetchCLData = async () => {
       const { data, error } = await supabase
         .from("cover_letters")
-        .select("company_name, role, created_at")
+        .select("id, company_name, role, created_at")
         .eq("user_id", user.id);
 
       if (error) {
@@ -78,12 +79,13 @@ export default function Dashboard() {
 
       // Store fetched data in state variable
       setCLTableData(data);
+      console.log(data)
     };
     if (user !== null) {
       fetchExpData();
       fetchEduData();
-      if(expTableData !== 0 || eduTableData !== 0) {
-        console.log("masuk?")
+      if (expTableData !== 0 || eduTableData !== 0) {
+        console.log("masuk?");
         fetchCLData();
       }
     }
@@ -176,7 +178,14 @@ export default function Dashboard() {
                   <td>{row.role}</td>
                   <td>{row.created_at}</td>
                   <th>
-                    <button className="btn btn-ghost btn-xs">details</button>
+                    <Link href={`dashboard/cover-letter/${row.id}`}>
+                      <button className="btn btn-outline btn-primary btn-sm">
+                        👁️ View
+                      </button>
+                    </Link>
+                    <button className="btn btn-outline btn-primary btn-sm">
+                      🗑️ Delete
+                    </button>
                   </th>
                 </tr>
               ))}

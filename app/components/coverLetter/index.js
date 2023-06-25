@@ -13,7 +13,6 @@ const supabase = createClient(supabaseUrl, supabasePublicKey);
 
 function CoverLetter(props) {
   const { user } = props;
-  console.log("index", props)
   const { id } = props;
   const [loading, setLoading] = useState(null);
   const [cover_letters, setCoverLetters] = useState([]);
@@ -49,11 +48,21 @@ function CoverLetter(props) {
       apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
     });
     const openai = new OpenAIApi(configuration);
-    const company_description = cover_letters.find((item) => item.id === id).company_description;
-    const job_description = cover_letters.find((item) => item.id === id).job_description;
+    const company_description = cover_letters.find(
+      (item) => item.id === id
+    ).company_description;
+    const job_description = cover_letters.find(
+      (item) => item.id === id
+    ).job_description;
 
     try {
-      setResponse("");
+      setResponse(null);
+      setLoading("cover_letter");
+      const timer = setTimeout(() => {
+        setLoading(null);
+        setResponse("Dear Diary");
+      }, 2000);
+      /* setResponse("");
       setLoading("cover_letter");
       const response = await openai.createCompletion({
         model: "text-davinci-003",
@@ -68,11 +77,11 @@ function CoverLetter(props) {
         presence_penalty: 0,
       });
 
-      setResponse(response.data?.choices[0]?.text.trim()); // Store the response in state or perform any other action
+      setResponse(response.data?.choices[0]?.text.trim()); */ // Store the response in state or perform any other action
     } catch (error) {
       console.error("Error:", error);
     }
-    setLoading(null);
+    //setLoading(null);
   };
 
   const handleChange = (fieldName, id, newValue) => {
@@ -97,28 +106,29 @@ function CoverLetter(props) {
 
   return (
     <>
-      <div className="flex flex-row items-center w-[100%] place-content-between mb-8">
-        <span className="font-bold">
-          Generate Your Personalized Cover Letter
-        </span>
+      <Container className="flex flex-col bg-white">
+        <div className="flex flex-row items-center w-[100%] place-content-between mb-8">
+          <span className="font-bold">
+            Generate Your Personalized Cover Letter
+          </span>
+          {mode === MODES.edit ? (
+            <button
+              onClick={handleSaveData}
+              className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+            >
+              💾 Save Job Details
+            </button>
+          ) : (
+            <button
+              onClick={handleEditCoverLetter}
+              className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+            >
+              ✏️ Edit
+            </button>
+          )}
+        </div>
+
         <span className="font-regular">Fill the job description</span>
-        {mode === MODES.edit ? (
-          <button
-            onClick={handleSaveData}
-            className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
-          >
-            💾 Save Cover Letter
-          </button>
-        ) : (
-          <button
-            onClick={handleEditCoverLetter}
-            className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
-          >
-            ✏️ Edit
-          </button>
-        )}
-      </div>
-      <div className="border-l-4 pl-6 pb-0 mb-0">
         {cover_letters &&
           Array.isArray(cover_letters) &&
           cover_letters.map((cover_letter) => (
@@ -185,41 +195,53 @@ function CoverLetter(props) {
                   </button>
                 </div>
               )}
-              {loading === "cover_letter" ? (
-                <Container className="flex flex-col bg-white p-6">
-                  <div className="flex flex-col w-1/2">
-                    <span className="relative flex">
-                      <span
-                        className="animate-spin ease-in-out h-5 w-5 mr-3"
-                        viewBox="0 0 24 24"
-                      >
-                        🪄
-                      </span>
-                      Doing magic...
-                    </span>
-                    <div className="border border-blue-300 shadow rounded-md w-full h-full">
-                      <div className="animate-pulse p-2">
-                        <div className="flex-1 space-y-2">
-                          <div className="h-2 bg-slate-200 rounded"></div>
-                          <div className="h-2 bg-slate-200 rounded"></div>
-                          <div className="h-2 bg-slate-200 rounded"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Container>
-              ) : null}
-              {response ? (
-                <Input
-                  mode={mode}
-                  label="Your Cover Letter"
-                  type={FormConfig.cover_letter.content.type}
-                  value={response}
-                />
-              ) : null}
             </Fragment>
           ))}
-      </div>
+      </Container>
+      {loading === "cover_letter" ? (
+        <Container className="bg-gray-200 w-full animate-pulse p-6">
+          <div className="flex flex-col w-1/2 justify-center items-center">
+            <span className="relative flex">
+              <span
+                className="animate-spin ease-in-out h-5 w-5 mr-3"
+                viewBox="0 0 24 24"
+              >
+                🪄
+              </span>
+              Doing magic...
+            </span>
+          </div>
+        </Container>
+      ) : null}
+      {response ? (
+        <Container className="flex flex-col bg-white p-6">
+          <div className="flex flex-row items-center w-[100%] place-content-between mb-8">
+            <span className="font-bold">
+              Your Cover Letter
+            </span>
+            {mode === MODES.edit ? (
+              <button
+                onClick={handleSaveData}
+                className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+              >
+                💾 Save Cover Letter
+              </button>
+            ) : (
+              <button
+                onClick={handleEditCoverLetter}
+                className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+              >
+                ✏️ Edit
+              </button>
+            )}
+          </div>
+          <Input
+            mode={mode}
+            type={FormConfig.cover_letter.content.type}
+            value={response}
+          />
+        </Container>
+      ) : null}
     </>
   );
 }

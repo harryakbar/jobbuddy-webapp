@@ -42,10 +42,7 @@ export default function Home({ params }) {
           <span className="font-bold"><a href="/dashboard">Dashboard</a></span>
         </div>
       </Container>
-
-      <Container className="min-h-screen">
         {user ? <CoverLetterForm user={user} id={params.slug}/> : "Loading..."}
-      </Container>
     </main>
   );
 }
