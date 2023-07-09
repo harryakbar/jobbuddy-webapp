@@ -6,6 +6,7 @@ import FormConfig from "../formConfig";
 import { createClient } from "@supabase/supabase-js";
 import { Configuration, OpenAIApi } from "openai";
 import { MODES } from "../form";
+import Image from "next/image";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -16,27 +17,27 @@ function Education(props) {
   const [loading, setLoading] = useState(null);
   const [educations, setEducations] = useState([]);
   const [response, setResponse] = useState(null);
+  const [deleted, setDeleted] = useState([]);
   const [mode, setMode] = useState(MODES.view);
 
-  useEffect(() => {
-    // Fetch data from a table
-    async function fetchData() {
-      try {
-        const { data, error } = await supabase
-          .from("educations")
-          .select("*")
-          .eq("user_id", user.id);
+  async function fetchData() {
+    try {
+      const { data, error } = await supabase
+        .from("educations")
+        .select("*")
+        .eq("user_id", user.id);
 
-        if (error) {
-          throw error;
-        }
-
-        setEducations(data);
-      } catch (error) {
-        console.error("Error fetching data:", error.message);
+      if (error) {
+        throw error;
       }
-    }
 
+      setEducations(data);
+    } catch (error) {
+      console.error("Error fetching data:", error.message);
+    }
+  }
+
+  useEffect(() => {
     if (user?.id) {
       fetchData();
     }
@@ -74,9 +75,19 @@ function Education(props) {
 
   const handleAdd = () => {
     setEducations((prevState) => {
+      const lastNumId = prevState
+        .filter((item) => typeof item.id === "number")
+        .map((item) => item.id);
+
+      let newIndex = 0;
+      if (lastNumId.length > 0) {
+        newIndex = lastNumId[lastNumId.length - 1] + 1;
+      }
+
       return [
         ...prevState,
         {
+          id: newIndex,
           institution: "",
           degree: "",
           field_of_study: "",
@@ -94,24 +105,39 @@ function Education(props) {
   };
 
   const handleSaveData = async () => {
-    // const { data, error } = await supabase.from("educations").insert([
-    //   {
-    //     user_id: user.id,
-    //     institution: "Universitas Indonesia",
-    //     degree: "Undergraduate",
-    //     field_of_study: "Computer Science",
-    //     end_date: "2023-04-17",
-    //     start_date: "2027-04-17",
-    //     description: "Studying Computer Science",
-    //     grade: "A",
-    //   },
-    // ]);
+    // Insert
+    const parsedData = educations
+      .filter(({ id }) => typeof id === "number")
+      .map((education) => ({
+        user_id: user.id,
+        institution: education.institution,
+        degree: education.degree,
+        field_of_study: education.field_of_study,
+        end_date: education.end_date,
+        start_date: education.start_date,
+        description: education.description,
+        grade: education.grade,
+      }));
+    if (parsedData.length > 0) {
+      let { error } = await supabase.from("educations").insert(parsedData);
+      if (error) {
+        console.error("Error saving educations:", error);
+      }
+    }
 
-    // if (error) {
-    //   console.error("Error saving experience:", error);
-    // } else {
-    //   console.log("Experience saved successfully:", data);
-    // }
+    // Delete
+    if (deleted.length > 0) {
+      const { data, error: errDelete } = await supabase
+        .from("educations")
+        .delete()
+        .in("id", deleted);
+
+      if (errDelete) {
+        console.error(errDelete);
+      }
+    }
+
+    fetchData();
     setMode(MODES.view);
   };
 
@@ -127,17 +153,36 @@ function Education(props) {
     }
   };
 
+  const handleDelete = (id) => {
+    setDeleted((prevState) => [...prevState, id]);
+  };
+
+  const handleCancelAction = () => {
+    setDeleted([]);
+    fetchData();
+    setMode(MODES.view);
+  };
+
   return (
     <>
       <div className="flex flex-row items-center w-[100%] place-content-between mb-8">
         <span className="font-bold">Education</span>
         {mode === MODES.edit ? (
-          <button
-            onClick={handleSaveData}
-            className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
-          >
-            💾 Save Education
-          </button>
+          <div className="space-x-4">
+            <button
+              onClick={handleCancelAction}
+              className="rounded-md text-[#F36868] p-2 border-2 border-[#F36868] cursor-pointer font-bold"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveData}
+              className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer space-x-2"
+            >
+              <span>💾</span>
+              <span>Save Education</span>
+            </button>
+          </div>
         ) : (
           <button
             onClick={handleEditProfile}
@@ -149,126 +194,146 @@ function Education(props) {
       </div>
       {educations &&
         Array.isArray(educations) &&
-        educations.map((education) => (
-          <Fragment key={education.id}>
-            <Input
-              mode={mode}
-              label={FormConfig.education.title.label}
-              type={FormConfig.education.title.type}
-              value={education.institution}
-              onChange={(event) =>
-                handleChange("institution", education.id, event.target.value)
-              }
-            />
-            <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
+        educations
+          .filter(({ id }) => !deleted.includes(id))
+          .map((education) => (
+            <Fragment key={education.id}>
+              <div className="flex row relative">
+                <Input
+                  mode={mode}
+                  label={FormConfig.education.title.label}
+                  type={FormConfig.education.title.type}
+                  value={education.institution}
+                  onChange={(event) =>
+                    handleChange(
+                      "institution",
+                      education.id,
+                      event.target.value
+                    )
+                  }
+                />
+                {mode === MODES.edit && (
+                  <button
+                    onClick={() => handleDelete(education.id)}
+                    className="btn btn-square absolute right-0 top-0"
+                  >
+                    <Image src={"/icon-trash.svg"} width={20} height={20} />
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
+                <Input
+                  mode={mode}
+                  label={FormConfig.education.degree.label}
+                  type={FormConfig.education.degree.type}
+                  value={education.degree}
+                  onChange={(event) =>
+                    handleChange("degree", education.id, event.target.value)
+                  }
+                />
+                <Input
+                  mode={mode}
+                  label={FormConfig.education.field_of_study.label}
+                  type={FormConfig.education.field_of_study.type}
+                  value={education.field_of_study}
+                  onChange={(event) =>
+                    handleChange(
+                      "field_of_study",
+                      education.id,
+                      event.target.value
+                    )
+                  }
+                />
+              </div>
+              <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
+                <Input
+                  mode={mode}
+                  label={FormConfig.start_date.label}
+                  type={FormConfig.start_date.type}
+                  value={education.start_date}
+                  onChange={(event) =>
+                    handleChange("start_date", education.id, event.target.value)
+                  }
+                />
+                <Input
+                  mode={mode}
+                  label={FormConfig.end_date.label}
+                  type={FormConfig.end_date.type}
+                  value={education.end_date}
+                  onChange={(event) =>
+                    handleChange("end_date", education.id, event.target.value)
+                  }
+                />
+              </div>
               <Input
                 mode={mode}
-                label={FormConfig.education.degree.label}
-                type={FormConfig.education.degree.type}
-                value={education.degree}
+                label={FormConfig.education.grade.label}
+                type={FormConfig.education.grade.type}
+                value={education.grade}
                 onChange={(event) =>
-                  handleChange("degree", education.id, event.target.value)
+                  handleChange("grade", education.id, event.target.value)
                 }
               />
-              <Input
-                mode={mode}
-                label={FormConfig.education.field_of_study.label}
-                type={FormConfig.education.field_of_study.type}
-                value={education.field_of_study}
-                onChange={(event) =>
-                  handleChange(
-                    "field_of_study",
-                    education.id,
-                    event.target.value
-                  )
-                }
-              />
-            </div>
-            <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
-              <Input
-                mode={mode}
-                label={FormConfig.start_date.label}
-                type={FormConfig.start_date.type}
-                value={education.start_date}
-                onChange={(event) =>
-                  handleChange("start_date", education.id, event.target.value)
-                }
-              />
-              <Input
-                mode={mode}
-                label={FormConfig.end_date.label}
-                type={FormConfig.end_date.type}
-                value={education.end_date}
-                onChange={(event) =>
-                  handleChange("end_date", education.id, event.target.value)
-                }
-              />
-            </div>
-            <Input
-              mode={mode}
-              label={FormConfig.education.grade.label}
-              type={FormConfig.education.grade.type}
-              value={education.grade}
-              onChange={(event) =>
-                handleChange("grade", education.id, event.target.value)
-              }
-            />
-            <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
-              <Input
-                mode={mode}
-                label={FormConfig.education.education_desc.label}
-                type={FormConfig.education.education_desc.type}
-                value={education.description}
-                onChange={(event) =>
-                  handleChange("description", education.id, event.target.value)
-                }
-              />
-              {loading === "education" ? (
-                <div className="flex flex-col w-1/2">
-                  <span className="relative flex">
-                    <span
-                      className="animate-spin ease-in-out h-5 w-5 mr-3"
-                      viewBox="0 0 24 24"
-                    >
-                      🪄
+              <div className="flex flex-col space-y-4 md:flex-row md:space-x-2 md:space-y-0">
+                <Input
+                  mode={mode}
+                  label={FormConfig.education.education_desc.label}
+                  type={FormConfig.education.education_desc.type}
+                  value={education.description}
+                  onChange={(event) =>
+                    handleChange(
+                      "description",
+                      education.id,
+                      event.target.value
+                    )
+                  }
+                />
+                {loading === "education" ? (
+                  <div className="flex flex-col w-1/2">
+                    <span className="relative flex">
+                      <span
+                        className="animate-spin ease-in-out h-5 w-5 mr-3"
+                        viewBox="0 0 24 24"
+                      >
+                        🪄
+                      </span>
+                      Doing magic...
                     </span>
-                    Doing magic...
-                  </span>
-                  <div className="border border-blue-300 shadow rounded-md w-full h-full">
-                    <div className="animate-pulse p-2">
-                      <div className="flex-1 space-y-2">
-                        <div className="h-2 bg-slate-200 rounded"></div>
-                        <div className="h-2 bg-slate-200 rounded"></div>
-                        <div className="h-2 bg-slate-200 rounded"></div>
+                    <div className="border border-blue-300 shadow rounded-md w-full h-full">
+                      <div className="animate-pulse p-2">
+                        <div className="flex-1 space-y-2">
+                          <div className="h-2 bg-slate-200 rounded"></div>
+                          <div className="h-2 bg-slate-200 rounded"></div>
+                          <div className="h-2 bg-slate-200 rounded"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ) : null}
-              {response ? (
-                <Input
-                  mode={mode}
-                  isMagic
-                  label="Here's our suggestion:"
-                  type={FormConfig.experience_description.type}
-                  value={response}
-                  disabled
-                />
-              ) : null}
-            </div>
-            {mode === MODES.edit && (
-              <div className="mb-8">
-                <button
-                  onClick={() => handleClick(education.id)}
-                  className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
-                >
-                  Improve with Magic ✨
-                </button>
+                ) : null}
+                {response ? (
+                  <Input
+                    mode={mode}
+                    isMagic
+                    label="Here's our suggestion:"
+                    type={FormConfig.experience_description.type}
+                    value={response}
+                    disabled
+                  />
+                ) : null}
               </div>
-            )}
-            <div className="border mb-8" />
-          </Fragment>
-        ))}
+              {mode === MODES.edit && (
+                <div className="mb-8">
+                  <button
+                    onClick={() => handleClick(education.id)}
+                    className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+                  >
+                    Improve with Magic ✨
+                  </button>
+                </div>
+              )}
+              <div className="border mb-8" />
+            </Fragment>
+          ))}
 
       {mode === MODES.edit && (
         <div>
