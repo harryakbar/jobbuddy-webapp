@@ -1,25 +1,33 @@
 "use client";
-
 import styles from "../../page.module.css";
 import "../../global.css";
-import DashboardForm from "../../components/coverLetterForm";
+import AddCoverLetterForm from "../../components/addCoverLetter";
 import classNames from "classnames";
+import { useEffect, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 
-const Container = (props) => {
-  return (
-    <div
-      className={classNames(
-        "flex flex-row mb-4 row drop-shadow-md bg-[#FFFDF6] rounded-md w-full place-content-between justify-between",
-        props.margin || "m-2",
-        props.padding || "p-2"
-      )}
-    >
-      {props.children}
-    </div>
-  );
-};
+import Container from "../../profile/components/container";
 
-export default function AddCoverLetter() {
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabasePublicKey);
+
+export default function Add() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const response = supabase.auth?.onAuthStateChange((_, session) => {
+      if (session) {
+        setUser(session.user);
+      }
+    });
+    return () => {
+      if (typeof response?.data?.unsubscribe === "function") {
+        response?.data?.unsubscribe();
+      }
+    };
+  }, []);
+
   return (
     <main className={classNames(styles.main, "p-4 sm:p-8")}>
       <Container margin="m-0">
@@ -29,18 +37,10 @@ export default function AddCoverLetter() {
           alt="icon"
         />
         <div className="flex row">
-          <span className="font-bold">Create Cover Letter</span>
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/2815/2815428.png"
-            alt="profile"
-            className="w-6 h-6 ml-2"
-          />
+          <span className="font-bold"><a href="/dashboard">Dashboard</a></span>
         </div>
       </Container>
-
-      <Container>
-        <DashboardForm />
-      </Container>
+        {user ? <AddCoverLetterForm user={user}/> : "Loading..."}
     </main>
   );
 }
