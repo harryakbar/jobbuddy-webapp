@@ -127,7 +127,6 @@ function Achievement(props) {
 
     // Delete
     if (deleted.length > 0) {
-      console.log(deleted);
       const { data, error: errDelete } = await supabase
         .from("achievements")
         .delete()
