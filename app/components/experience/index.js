@@ -155,7 +155,7 @@ function Experience(props) {
       <div className="flex flex-row items-center w-[100%] place-content-between mb-8">
         <span className="font-bold">Experience</span>
         {mode === MODES.edit ? (
-          <>
+          <div className="space-x-4">
             <button
               onClick={handleCancelAction}
               className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
@@ -164,11 +164,12 @@ function Experience(props) {
             </button>
             <button
               onClick={handleSaveData}
-              className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+              className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer space-x-2"
             >
-              💾 Save Experience
+              <span>💾</span>
+              <span>Save Experience</span>
             </button>
-          </>
+          </div>
         ) : (
           <button
             onClick={handleEditProfile}
@@ -185,7 +186,7 @@ function Experience(props) {
             .filter(({ id }) => !deleted.includes(id))
             .map((experience) => (
               <Fragment key={experience.id}>
-                <div className="flex flex-col relative space-y-4 md:flex-row md:space-x-2 md:space-y-0">
+                <div className="flex flex-col relative space-y-4 md:flex-row md:space-x-2 md:space-y-0 pt-2">
                   <Input
                     mode={mode}
                     label={FormConfig.company.label}

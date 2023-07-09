@@ -8,7 +8,7 @@ const FormConfig = {
     type: "email",
   },
   phone: {
-    label: "Phone Number",
+    label: "Phone",
     type: "phone",
   },
   website: {

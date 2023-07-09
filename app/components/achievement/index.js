@@ -162,7 +162,7 @@ function Achievement(props) {
       <div className="flex flex-row items-center w-[100%] place-content-between mb-8">
         <span className="font-bold">Achievement</span>
         {mode === MODES.edit ? (
-          <>
+          <div className="space-x-4">
             <button
               onClick={handleCancelAction}
               className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
@@ -171,11 +171,12 @@ function Achievement(props) {
             </button>
             <button
               onClick={handleSaveData}
-              className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+              className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer space-x-2"
             >
-              💾 Save Achievement
+              <span>💾</span>
+              <span>Save Achievement</span>
             </button>
-          </>
+          </div>
         ) : (
           <button
             onClick={handleEditProfile}

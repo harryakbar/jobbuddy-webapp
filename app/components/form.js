@@ -49,6 +49,9 @@ const Form = (props) => {
   const handleSaveProfile = () => {
     setMode(MODES.view);
   };
+  const handleCancelEditingProfile = () => {
+    setMode(MODES.view);
+  };
 
   return (
     <form onSubmit={EventHandler} className="w-full md:p-12">
@@ -56,12 +59,21 @@ const Form = (props) => {
         <div className="flex row place-content-between w-full">
           <h3 className="font-bold">Your Profile</h3>
           {mode === MODES.edit ? (
-            <button
-              onClick={handleSaveProfile}
-              className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
-            >
-              💾 Save Profile
-            </button>
+            <div className="space-x-4">
+              <button
+                onClick={handleCancelEditingProfile}
+                className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveProfile}
+                className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer space-x-2"
+              >
+                <span>💾</span>
+                <span>Save Profile</span>
+              </button>
+            </div>
           ) : (
             <button
               onClick={handleEditProfile}
@@ -86,26 +98,30 @@ const Form = (props) => {
             value={user.user_metadata.full_name}
             mode={mode}
           />
-          <Input
-            label={FormConfig.email.label}
-            type={FormConfig.email.type}
-            mode={mode}
-          />
-          <Input
-            label={FormConfig.phone.label}
-            type={FormConfig.phone.type}
-            mode={mode}
-          />
-          <Input
-            label={FormConfig.website.label}
-            type={FormConfig.website.type}
-            mode={mode}
-          />
-          <Input
-            label={FormConfig.location.label}
-            type={FormConfig.location.type}
-            mode={mode}
-          />
+          <div className="flex row space-x-4">
+            <Input
+              label={FormConfig.email.label}
+              type={FormConfig.email.type}
+              mode={mode}
+            />
+            <Input
+              label={FormConfig.phone.label}
+              type={FormConfig.phone.type}
+              mode={mode}
+            />
+          </div>
+          <div className="flex row space-x-4">
+            <Input
+              label={FormConfig.website.label}
+              type={FormConfig.website.type}
+              mode={mode}
+            />
+            <Input
+              label={FormConfig.location.label}
+              type={FormConfig.location.type}
+              mode={mode}
+            />
+          </div>
           <Input
             label={FormConfig.profile_summary.label}
             type={FormConfig.profile_summary.type}
@@ -125,13 +141,6 @@ const Form = (props) => {
       <Container className="flex flex-col bg-white p-6">
         <Achievement user={user} />
       </Container>
-
-      <div className="border mt-4" />
-      <input
-        type="submit"
-        className="mt-4 rounded-md text-white px-4 sm:px-8 py-2 sm:py-3 bg-[#8EB8E2] cursor-pointer"
-        value="Save Profile"
-      />
     </form>
   );
 };
