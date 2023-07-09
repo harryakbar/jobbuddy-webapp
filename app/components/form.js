@@ -62,7 +62,7 @@ const Form = (props) => {
             <div className="space-x-4">
               <button
                 onClick={handleCancelEditingProfile}
-                className="rounded-md text-white p-2 bg-[#8EB8E2] cursor-pointer"
+                className="rounded-md text-[#F36868] p-2 border-2 border-[#F36868] cursor-pointer font-bold"
               >
                 Cancel
               </button>
