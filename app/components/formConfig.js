@@ -89,6 +89,52 @@ const FormConfig = {
       type: "textarea",
     },
   },
+
+  // Cover Letters
+  cover_letter: {
+    company: {
+      label: "Company Name",
+      type: "text",
+    },
+    role: {
+      label: "Role",
+      type: "text",
+    },
+    company_description: {
+      label: "Company's Description",
+      type: "textarea",
+    },
+    job_description: {
+      label: "Job's Description",
+      type: "textarea",
+    },
+    content: {
+      type: "textarea",
+    },
+  },
+
+  // Add Cover Letters
+  add_cover_letter: {
+    company: {
+      label: "Company Name",
+      type: "text",
+    },
+    role: {
+      label: "Role",
+      type: "text",
+    },
+    company_description: {
+      label: "Company's Description",
+      type: "textarea",
+    },
+    job_description: {
+      label: "Job's Description",
+      type: "textarea",
+    },
+    content: {
+      type: "textarea",
+    },
+  },
 };
 
 export default FormConfig;

@@ -2,7 +2,7 @@
 import "../global.css";
 import classNames from "classnames";
 import { createClient } from "@supabase/supabase-js";
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -58,7 +58,7 @@ const Input = (props) => {
 };
 
 const FormConfig = {
-  // Sign In
+  // Sign Up
   email: {
     label: "Email",
     type: "email",
@@ -75,26 +75,24 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  console.log(user)
-  const signInWithPassword = async () => {
+  const signUpWithEmail = async () => {
     try {
-      // Sign in with email
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Sign up with email
+      const { data, error } = await supabase.auth.signUp({
         email: email,
         password: password,
       });
 
-      console.log(user)
       if (error) {
-        console.error("Error signing in:", error.message);
+        console.error("Error signing up:", error.message);
         return;
       }
 
-      // Sign-in successful
+      // Sign-up successful
       router.push("/dashboard");
-      console.log("Sign in successful!");
+      console.log("Sign up successful!");
     } catch (error) {
-      console.error("Error signing in:", error.message);
+      console.error("Error signing up:", error.message);
     }
   };
 
@@ -139,7 +137,6 @@ export default function Home() {
 
       <Container className="w-1/2 p-10 flex items-center content-center">
         <div>
-          <div>
             <Input
               label={FormConfig.email.label}
               type={FormConfig.email.type}
@@ -158,12 +155,11 @@ export default function Home() {
                 setPassword(event.target.value);
               }}
             />
-            <button className="btn btn-primary" onClick={signInWithPassword}>
-              Sign In
+            <button className="btn btn-primary" onClick={signUpWithEmail}>
+              Sign Up
             </button>
-          </div>
           <div>
-            <button onClick={signInWithGoogle}>Sign in with Google</button>
+            <button onClick={signInWithGoogle}>Sign up with Google</button>
           </div>
         </div>
       </Container>

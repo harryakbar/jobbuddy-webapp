@@ -1,17 +1,18 @@
 "use client";
-import styles from "../page.module.css";
-import "../global.css";
-import Form from "../components/form";
+import styles from "../../page.module.css";
+import "../../global.css";
+import AddCoverLetterForm from "../../components/addCoverLetter";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import Container from "./components/container";
+
+import Container from "../../profile/components/container";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabasePublicKey);
 
-export default function Home() {
+export default function Add() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -39,10 +40,7 @@ export default function Home() {
           <span className="font-bold"><a href="/dashboard">Dashboard</a></span>
         </div>
       </Container>
-
-      <Container className="min-h-screen">
-        {user ? <Form user={user} /> : "Loading..."}
-      </Container>
+        {user ? <AddCoverLetterForm user={user}/> : "Loading..."}
     </main>
   );
 }
